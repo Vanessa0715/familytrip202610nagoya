@@ -54,11 +54,23 @@
     // 使用你的專案 ID 作為路徑辨識碼
     const appId = "familytrip202610nagoya";
 
+    // --- 備用無敵圖庫 (絕對不會破圖的 Pexels 高畫質圖) ---
+    const fallbackImages = [
+      "https://images.pexels.com/photos/1105085/pexels-photo-1105085.jpeg?auto=compress&cs=tinysrgb&w=800", // 名古屋市區
+      "https://images.pexels.com/photos/402028/pexels-photo-402028.jpeg?auto=compress&cs=tinysrgb&w=800", // 傳統街道 (馬籠宿感)
+      "https://images.pexels.com/photos/3408354/pexels-photo-3408354.jpeg?auto=compress&cs=tinysrgb&w=800", // 自然山脈 (上高地感)
+      "https://images.pexels.com/photos/2087391/pexels-photo-2087391.jpeg?auto=compress&cs=tinysrgb&w=800", // 童話村落 (白川鄉感)
+      "https://images.pexels.com/photos/1440476/pexels-photo-1440476.jpeg?auto=compress&cs=tinysrgb&w=800", // 日式庭園 (兼六園感)
+      "https://images.pexels.com/photos/1510595/pexels-photo-1510595.jpeg?auto=compress&cs=tinysrgb&w=800"  // 歸途夕陽
+    ];
+    // 將其掛載到 window，避免 Babel 編譯後的閉包在事件回呼中遺失參考
+    window.fallbackImages = fallbackImages;
+
     // --- 初始行程資料 (滿血完整版：確保所有行程文字都在！) ---
     const initialTripData = [
       {
         date: "10/01", day: "THU",
-        heroImage: "https://images.unsplash.com/photo-1581404021381-127e7428f729?q=80&w=800&auto=format&fit=crop",
+        heroImage: fallbackImages[0],
         heroTitle: "第一天", heroSubtitle: "名古屋", heroDesc: "開啟自駕的序幕",
         weather: { temp: "24°", outfit: "微涼舒適，建議穿著短袖或薄長袖，搭配輕薄小外套即可。🧥", hourly: [
           { time: "現在", icon: "☀️", temp: "24°" }, { time: "16:00", icon: "🌤️", temp: "22°" }, { time: "18:00", icon: "⛅", temp: "20°" }, { time: "20:00", icon: "☁️", temp: "18°" }, { time: "22:00", icon: "☁️", temp: "17°" }
@@ -80,8 +92,8 @@
         ]
       },
       { 
-        date: "10/02", day: "FRI", heroImage: "https://images.unsplash.com/photo-1620216503921-29e2ebcd1b24?q=80&w=800&auto=format&fit=crop", heroTitle: "第二天", heroSubtitle: "馬籠宿・松本", heroDesc: "走進江戶時代", 
-        weather: { temp: "22°", outfit: "山區溫差大，建議洋蔥式穿法，備妥防風外套。🍂", hourly: [{ time: "現在", icon: "⛅", temp: "22°" }, { time: "14:00", icon: "🌤️", temp: "21°" }, { time: "18:00", icon: "☁️", temp: "15°" }] }, 
+        date: "10/02", day: "FRI", heroImage: fallbackImages[1], heroTitle: "第二天", heroSubtitle: "馬籠宿・松本", heroDesc: "走進江戶時代", 
+        weather: { temp: "22°", outfit: "山區溫差大，建議洋蔥式穿法，備妥防風外套。🍂", hourly: [{ time: "現在", icon: "⛅", temp: "22°" }, { time: "11:00", icon: "☀️", temp: "23°" }, { time: "14:00", icon: "🌤️", temp: "21°" }, { time: "16:00", icon: "☁️", temp: "18°" }, { time: "18:00", icon: "☁️", temp: "15°" }] }, 
         location: "馬籠宿", 
         events: [
           { 
@@ -95,8 +107,8 @@
         ] 
       },
       { 
-        date: "10/03", day: "SAT", heroImage: "https://images.unsplash.com/photo-1510255556272-358b548d9043?q=80&w=800&auto=format&fit=crop", heroTitle: "第三天", heroSubtitle: "上高地・新穗高", heroDesc: "神明降臨的阿爾卑斯", 
-        weather: { temp: "15°", outfit: "高海拔氣溫低！務必穿著保暖防風外套、內搭發熱衣。🧣", hourly: [{ time: "現在", icon: "☁️", temp: "10°" }, { time: "12:00", icon: "🌤️", temp: "15°" }, { time: "16:00", icon: "🌧️", temp: "11°" }] }, 
+        date: "10/03", day: "SAT", heroImage: fallbackImages[2], heroTitle: "第三天", heroSubtitle: "上高地・新穗高", heroDesc: "神明降臨的阿爾卑斯", 
+        weather: { temp: "15°", outfit: "高海拔氣溫低！務必穿著保暖防風外套、內搭發熱衣。🧣", hourly: [{ time: "現在", icon: "☁️", temp: "10°" }, { time: "09:00", icon: "⛅", temp: "12°" }, { time: "12:00", icon: "🌤️", temp: "15°" }, { time: "14:00", icon: "☁️", temp: "13°" }, { time: "16:00", icon: "🌧️", temp: "11°" }] }, 
         location: "上高地", 
         events: [
           { 
@@ -118,8 +130,8 @@
         ] 
       },
       { 
-        date: "10/04", day: "SUN", heroImage: "https://images.unsplash.com/photo-1596426755498-8ba94dd89dc0?q=80&w=800&auto=format&fit=crop", heroTitle: "第四天", heroSubtitle: "白川鄉・高山", heroDesc: "探訪童話村", 
-        weather: { temp: "18°", outfit: "早晚溫差大，白天長袖舒適，早晚帶件保暖外套。☕", hourly: [{ time: "現在", icon: "☀️", temp: "12°" }, { time: "12:00", icon: "🌤️", temp: "18°" }, { time: "16:00", icon: "☁️", temp: "15°" }] }, 
+        date: "10/04", day: "SUN", heroImage: fallbackImages[3], heroTitle: "第四天", heroSubtitle: "白川鄉・高山", heroDesc: "探訪童話村", 
+        weather: { temp: "18°", outfit: "早晚溫差大，白天長袖舒適，早晚帶件保暖外套。☕", hourly: [{ time: "現在", icon: "☀️", temp: "12°" }, { time: "10:00", icon: "☀️", temp: "16°" }, { time: "12:00", icon: "🌤️", temp: "18°" }, { time: "14:00", icon: "⛅", temp: "17°" }, { time: "16:00", icon: "☁️", temp: "15°" }] }, 
         location: "白川鄉", 
         events: [
           { 
@@ -133,8 +145,8 @@
         ] 
       },
       { 
-        date: "10/05", day: "MON", heroImage: "https://images.unsplash.com/photo-1591873763784-72fb4d01db54?q=80&w=800&auto=format&fit=crop", heroTitle: "第五天", heroSubtitle: "金澤", heroDesc: "加賀百萬石榮華", 
-        weather: { temp: "21°", outfit: "市區微涼，薄長袖搭配小針織衫。🍃", hourly: [{ time: "現在", icon: "☁️", temp: "18°" }, { time: "12:00", icon: "⛅", temp: "21°" }] }, 
+        date: "10/05", day: "MON", heroImage: fallbackImages[4], heroTitle: "第五天", heroSubtitle: "金澤", heroDesc: "加賀百萬石榮華", 
+        weather: { temp: "21°", outfit: "市區微涼，薄長袖搭配小針織衫。🍃", hourly: [{ time: "現在", icon: "☁️", temp: "18°" }, { time: "10:00", icon: "⛅", temp: "20°" }, { time: "12:00", icon: "⛅", temp: "21°" }, { time: "15:00", icon: "☁️", temp: "19°" }, { time: "18:00", icon: "🌧️", temp: "17°" }] }, 
         location: "金澤市", 
         events: [
           { 
@@ -148,8 +160,8 @@
         ] 
       },
       { 
-        date: "10/06", day: "TUE", heroImage: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=800&auto=format&fit=crop", heroTitle: "第六天", heroSubtitle: "返家之旅", heroDesc: "滿載回憶", 
-        weather: { temp: "23°", outfit: "天氣晴朗舒適，透氣長袖或短袖。✈️", hourly: [{ time: "現在", icon: "🌤️", temp: "20°" }, { time: "12:00", icon: "☀️", temp: "24°" }] }, 
+        date: "10/06", day: "TUE", heroImage: fallbackImages[5], heroTitle: "第六天", heroSubtitle: "返家之旅", heroDesc: "滿載回憶", 
+        weather: { temp: "23°", outfit: "天氣晴朗舒適，透氣長袖或短袖。✈️", hourly: [{ time: "現在", icon: "🌤️", temp: "20°" }, { time: "10:00", icon: "☀️", temp: "22°" }, { time: "12:00", icon: "☀️", temp: "24°" }, { time: "15:00", icon: "⛅", temp: "23°" }, { time: "18:00", icon: "☁️", temp: "21°" }] }, 
         location: "名古屋", 
         events: [
           { 
@@ -214,7 +226,31 @@
         const tripDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'itinerary', 'master_v2');
         const unsubscribe = onSnapshot(tripDocRef, (snapshot) => {
           if (snapshot.exists()) {
-            setTrips(snapshot.data().content);
+            let data = snapshot.data().content;
+            let needsUpdate = false;
+            
+            // 魔法機制：修復圖片與不完整的天氣資料
+            data = data.map((day, idx) => {
+              let updatedDay = { ...day };
+              
+              if (updatedDay.heroImage && updatedDay.heroImage.includes('unsplash')) {
+                needsUpdate = true;
+                updatedDay.heroImage = window.fallbackImages[idx % 6];
+              }
+
+              // 修復天氣陣列長度不完整的問題
+              if (updatedDay.weather && updatedDay.weather.hourly && updatedDay.weather.hourly.length < 5) {
+                needsUpdate = true;
+                updatedDay.weather.hourly = initialTripData[idx].weather.hourly;
+              }
+
+              return updatedDay;
+            });
+
+            if (needsUpdate) {
+              setDoc(tripDocRef, { content: data }); // 寫回修正後的資料
+            }
+            setTrips(data);
           } else {
             setDoc(tripDocRef, { content: initialTripData });
           }
@@ -229,23 +265,50 @@
       };
 
       const handleSaveEdit = async () => {
+        if (!editFormData.title || !editFormData.time) {
+          alert("標題和時間是必填的喔！✨");
+          return;
+        }
+
         const newTrips = [...trips];
         const typeMap = { 'food': 'FOOD', 'flight': 'FLIGHT', 'transport': 'TRANSPORT', 'hotel': 'ACCOMMODATION', 'attraction': 'SIGHTSEEING' };
+        
+        // 整理外層基本資料
+        const baseEventData = {
+          time: editFormData.time,
+          title: editFormData.title,
+          desc: editFormData.desc,
+          type: editFormData.type,
+          typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
+          map: editFormData.map || "",
+        };
+
+        // 整理內層詳細資料
+        const modalDetails = {
+          address: editFormData.address || "",
+          phone: editFormData.phone || "",
+          website: editFormData.website || "",
+          reservationNo: editFormData.reservationNo || "",
+          // 將文字框的換行切分成陣列，過濾掉空行
+          descriptions: editFormData.descriptionsText ? editFormData.descriptionsText.split('\n').filter(t=>t.trim()!=='') : []
+        };
+
         if (editFormData.isNew) {
           newTrips[editFormData.dayIdx].events.push({
-            ...editFormData,
-            typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
-            tags: [],
-            modalDetails: { descriptions: [editFormData.desc] }
+            ...baseEventData,
+            tags: [], // 新增預設沒標籤
+            modalDetails: modalDetails
           });
         } else {
+          // 保留舊的 tags 和其他沒編輯到的 modalDetails (例如 pdfs)
+          const oldEvent = newTrips[editFormData.dayIdx].events[editFormData.eventIdx];
           newTrips[editFormData.dayIdx].events[editFormData.eventIdx] = {
-            ...newTrips[editFormData.dayIdx].events[editFormData.eventIdx],
-            time: editFormData.time,
-            title: editFormData.title,
-            desc: editFormData.desc,
-            type: editFormData.type,
-            typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
+            ...oldEvent,
+            ...baseEventData,
+            modalDetails: {
+              ...oldEvent.modalDetails,
+              ...modalDetails
+            }
           };
         }
         newTrips[editFormData.dayIdx].events.sort((a, b) => a.time.localeCompare(b.time));
@@ -305,9 +368,15 @@
       if (trips.length === 0 && !authError) return <div className="h-screen flex items-center justify-center font-serif text-gray-400">Loading Journey...</div>;
 
       const currentDayData = trips[selectedDayIdx];
-      const firstEventTime = currentDayData?.events?.length > 0 ? currentDayData.events[0].time : "--:--";
-      const firstEventTitle = currentDayData?.events?.length > 0 ? currentDayData.events[0].title : "無行程";
-      const nextEventTime = currentDayData?.events?.length > 1 ? currentDayData.events[1].time : "18:00";
+      const firstEvent = currentDayData?.events?.[0];
+      const nextEvent = currentDayData?.events?.[1];
+      const firstEventTime = firstEvent ? firstEvent.time : "--:--";
+      const firstEventTitle = firstEvent ? firstEvent.title : "無行程";
+      const nextEventTime = nextEvent ? nextEvent.time : "--:--";
+      const nextEventTitle = nextEvent ? nextEvent.title : "自由活動";
+      
+      // 在元件內部定義備用圖片，確保 `onError` 一定能讀取到
+      const currentFallbackImage = window.fallbackImages[selectedDayIdx % 6];
 
       return (
         <div className="max-w-md mx-auto h-screen bg-[#FDFCFB] text-[#333333] flex flex-col font-serif overflow-hidden shadow-2xl relative">
@@ -327,7 +396,7 @@
           {/* --- Header --- */}
           <header className="px-5 pt-8 pb-2 flex flex-col bg-[#FDFCFB] z-10 shrink-0">
             <div className="flex justify-between items-center w-full relative">
-              <button className="w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-sm z-20">✕</button>
+              <div className="w-8 h-8"></div> {/* 移除 X 符號，保留空間維持標題置中 */}
               <div className="absolute left-0 right-0 flex flex-col items-center justify-center pointer-events-none">
                 <h1 className="text-[1.3rem] font-bold tracking-widest text-[#222]">🏔️ 10月中部旅行</h1>
                 <span className="border border-[#E0Dcd0] bg-[#F7F5F0] rounded-full px-2.5 py-0.5 text-[0.55rem] text-[#888] font-sans tracking-widest shadow-sm mt-0.5">2026/10/01-10/06</span>
@@ -351,8 +420,13 @@
               <div className="animate-fade-in flex flex-col px-5">
                 <div className="py-4 flex gap-4 items-stretch h-56 relative z-10">
                   <div className="w-6 flex items-center justify-center"><span className="text-[1.35rem] font-serif tracking-widest text-[#222]" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>{currentDayData?.heroTitle}</span></div>
-                  <div className="relative flex-1 rounded-sm overflow-hidden shadow-sm">
-                    <img src={currentDayData?.heroImage} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="relative flex-1 rounded-sm overflow-hidden shadow-sm bg-[#EBE7DF]">
+                    <img 
+                      src={currentDayData?.heroImage || currentFallbackImage} 
+                      onError={(e) => { e.target.onerror = null; e.target.src = currentFallbackImage; }}
+                      className="absolute inset-0 w-full h-full object-cover" 
+                      alt="Hero"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                     <div className="absolute bottom-4 left-4 right-4 text-white">
                       <div className="flex items-center gap-2 mb-1.5"><span className="border border-white/60 px-1.5 py-0.5 text-[0.55rem] font-sans tracking-widest bg-black/20">DAY {selectedDayIdx + 1}</span><span className="text-[0.6rem] font-sans tracking-widest opacity-90">📍 {currentDayData?.heroSubtitle}</span></div>
@@ -400,7 +474,23 @@
                   ))}
                 </div>
 
-                <button onClick={() => { setEditFormData({ dayIdx: selectedDayIdx, time: "12:00", title: "", desc: "", type: "attraction", isNew: true }); setIsEditing(true); }} className="w-full py-3 border border-dashed border-[#D4C8B8] text-[#A5998A] rounded-sm text-sm tracking-widest flex items-center justify-center gap-2 mb-24 hover:bg-gray-50">+ 新增行程</button>
+                <button onClick={() => { 
+                  setEditFormData({ 
+                    dayIdx: selectedDayIdx, 
+                    time: "12:00", 
+                    title: "", 
+                    desc: "", 
+                    type: "attraction", 
+                    map: "",
+                    address: "",
+                    phone: "",
+                    website: "",
+                    reservationNo: "",
+                    descriptionsText: "",
+                    isNew: true 
+                  }); 
+                  setIsEditing(true); 
+                }} className="w-full py-3 border border-dashed border-[#D4C8B8] text-[#A5998A] rounded-sm text-sm tracking-widest flex items-center justify-center gap-2 mb-24 hover:bg-gray-50 transition-colors">+ 新增行程</button>
               </div>
             )}
 
@@ -479,23 +569,67 @@
             ))}
           </nav>
 
-          {/* Event Modal */}
+          {/* Event Modal (滿血資訊版) */}
           {selectedEvent && (
             <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedEvent(null)}>
-              <div className="bg-[#FDFCFB] w-full max-w-md h-[90vh] rounded-t-2xl overflow-hidden flex flex-col animate-slide-up shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="px-6 py-5 flex justify-between items-center border-b border-gray-100/80 bg-white/50">
+              <div className="bg-[#FDFCFB] w-full max-w-md h-[90vh] rounded-t-2xl overflow-hidden flex flex-col animate-slide-up shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                
+                {/* Modal Header */}
+                <div className="px-6 py-5 flex justify-between items-center border-b border-gray-100/80 bg-white/50 shrink-0">
                   <div className="flex items-center gap-3">
                     <span className={`border px-2 py-0.5 text-[0.65rem] uppercase ${getTypeStyle(selectedEvent.type)}`}>{selectedEvent.typeText}</span>
                     <span className="text-sm font-serif text-gray-500 tracking-wider">🕒 {selectedEvent.time}</span>
                   </div>
                   <div className="flex gap-4">
-                    <button onClick={() => { setEditFormData(selectedEvent); setIsEditing(true); }} className="text-gray-400 hover:text-black">✏️</button>
-                    <button onClick={handleDeleteEvent} className="text-gray-400 hover:text-[#8B2C2C]">🗑️</button>
-                    <button onClick={() => setSelectedEvent(null)} className="text-2xl font-light hover:text-black">×</button>
+                    <button onClick={() => { 
+                      setEditFormData({
+                        isNew: false,
+                        dayIdx: selectedEvent.dayIdx,
+                        eventIdx: selectedEvent.eventIdx,
+                        time: selectedEvent.time || "",
+                        title: selectedEvent.title || "",
+                        desc: selectedEvent.desc || "",
+                        type: selectedEvent.type || "attraction",
+                        map: selectedEvent.map || "",
+                        address: selectedEvent.modalDetails?.address || "",
+                        phone: selectedEvent.modalDetails?.phone || "",
+                        website: selectedEvent.modalDetails?.website || "",
+                        reservationNo: selectedEvent.modalDetails?.reservationNo || "",
+                        descriptionsText: selectedEvent.modalDetails?.descriptions?.join('\n') || ""
+                      });
+                      setIsEditing(true); 
+                    }} className="text-gray-400 hover:text-black transition-colors" title="編輯">✏️</button>
+                    <button onClick={handleDeleteEvent} className="text-gray-400 hover:text-[#8B2C2C] transition-colors" title="刪除">🗑️</button>
+                    <button onClick={() => setSelectedEvent(null)} className="text-2xl font-light hover:text-black transition-colors">×</button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto px-6 py-8 pb-32 hide-scrollbar">
+                
+                {/* Modal Body */}
+                <div className="flex-1 overflow-y-auto px-6 py-8 pb-40 hide-scrollbar">
                   <h2 className="text-[1.65rem] font-serif font-bold text-[#222] mb-3 leading-snug">{selectedEvent.title}</h2>
+                  
+                  {/* 地址區塊 */}
+                  {selectedEvent.modalDetails?.address && (
+                    <p className="text-[0.8rem] text-gray-500 mb-8 flex items-start gap-1.5 tracking-wide">
+                      <span className="opacity-60 text-xs">📍</span> {selectedEvent.modalDetails.address}
+                    </p>
+                  )}
+
+                  {/* 預約代號區塊 */}
+                  {selectedEvent.modalDetails?.reservationNo && (
+                    <div className="mb-8 bg-[#F8F7F4] border border-[#EBE7DF] p-5 rounded-sm shadow-sm relative overflow-hidden">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#D4C8B8]"></div>
+                      <span className="text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase font-bold mb-2 block">RESERVATION</span>
+                      <div className="font-serif font-bold text-lg text-[#222]">{selectedEvent.title}</div>
+                      <div className="border-t border-dashed border-[#EBE7DF] pt-4 mt-4 relative">
+                        <div className="text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">CONFIRMATION NO.</div>
+                        <div className="font-mono text-xl font-bold text-[#333] tracking-widest">{selectedEvent.modalDetails.reservationNo}</div>
+                        <div className="absolute right-2 -bottom-2 stamp-tag transform rotate-[-5deg]">訂單代號</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 住宿 PDF 區塊 */}
                   {selectedEvent.type === 'hotel' && (
                     <div className="mb-8 bg-white border border-gray-100 p-4 rounded-sm shadow-sm relative overflow-hidden">
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#D4C8B8]"></div>
@@ -515,42 +649,180 @@
                       </div>
                     </div>
                   )}
-                  <div className="space-y-6 text-[0.85rem] text-gray-600 leading-relaxed font-sans text-justify relative pl-4">
-                    <div className="absolute left-0 top-1 bottom-1 w-[1px] bg-gray-200"></div>
-                    {selectedEvent.modalDetails?.descriptions?.map((d, i) => (
-                      <div key={i} className="relative"><div className="absolute left-[-20px] top-2 w-2 h-2 rounded-full bg-[#D4C8B8]"></div>{d}</div>
-                    ))}
-                  </div>
+
+                  {/* 電話資訊區塊 */}
+                  {selectedEvent.modalDetails?.phone && (
+                    <div className="mb-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-gray-400 text-xs">ⓘ</span>
+                        <span className="text-[0.7rem] text-gray-500 tracking-[0.2em] uppercase font-bold">關於此處 (ABOUT)</span>
+                      </div>
+                      <div className="bg-white border border-gray-100 p-4 rounded-sm shadow-sm flex items-center gap-4">
+                        <div className="text-[#A5998A] text-xl">📞</div>
+                        <div>
+                          <div className="text-[0.55rem] text-[#A5998A] tracking-[0.2em] uppercase mb-0.5 font-bold">PHONE / GPS</div>
+                          <div className="font-mono font-bold text-lg text-[#222] tracking-wider">{selectedEvent.modalDetails.phone}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 內文筆記區塊 */}
+                  {selectedEvent.modalDetails?.descriptions && selectedEvent.modalDetails.descriptions.length > 0 && (
+                    <div className="space-y-6 text-[0.85rem] text-gray-600 leading-relaxed font-sans text-justify relative pl-4 mt-4">
+                      <div className="absolute left-0 top-1 bottom-1 w-[1px] bg-gray-200"></div>
+                      {selectedEvent.modalDetails.descriptions.map((d, i) => (
+                        <div key={i} className="relative">
+                          <div className="absolute left-[-20px] top-2 w-2 h-2 rounded-full bg-[#D4C8B8]"></div>
+                          {d}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
+                {/* 底部導航與官網按鈕 (固定於底部) */}
+                {(selectedEvent.map || selectedEvent.modalDetails?.website) && (
+                  <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#FDFCFB] via-[#FDFCFB]/95 to-transparent flex flex-col gap-2.5 pb-safe">
+                    {selectedEvent.map && (
+                      <a href={selectedEvent.map} target="_blank" rel="noreferrer" className="w-full bg-[#879782] text-white py-3.5 rounded text-center text-sm tracking-widest font-bold shadow-md hover:bg-[#72826e] transition-colors">
+                        🧭 Google Maps 導航
+                      </a>
+                    )}
+                    {selectedEvent.modalDetails?.website && (
+                      <a href={selectedEvent.modalDetails.website} target="_blank" rel="noreferrer" className="w-full bg-[#B29D82] text-white py-3.5 rounded text-center text-sm tracking-widest font-bold shadow-md hover:bg-[#9c8971] transition-colors">
+                        🌐 官方網站
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* Edit Modal */}
-          {isEditing && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-5 backdrop-blur-sm animate-fade-in" onClick={() => setIsEditing(false)}>
-              <div className="bg-[#FDFCFB] w-full max-w-sm p-8 rounded-xl shadow-2xl font-sans animate-slide-up" onClick={e => e.stopPropagation()}>
-                 <h3 className="font-serif font-bold text-xl mb-6 tracking-widest text-[#222]">行程細節</h3>
-                 <input className="w-full border-b border-gray-300 p-2 mb-6 rounded-none outline-none focus:border-[#879782] font-serif transition-colors bg-transparent" value={editFormData.title} onChange={e => setEditFormData({...editFormData, title: e.target.value})} placeholder="輸入標題..." />
-                 <input className="w-full border-b border-gray-300 p-2 mb-8 rounded-none outline-none focus:border-[#879782] font-mono transition-colors bg-transparent" type="time" value={editFormData.time} onChange={e => setEditFormData({...editFormData, time: e.target.value})} />
-                 <div className="flex gap-3">
-                   <button onClick={() => setIsEditing(false)} className="flex-1 py-3 bg-gray-100 text-gray-500 rounded-sm text-xs tracking-widest font-bold uppercase">Cancel</button>
-                   <button onClick={handleSaveEdit} className="flex-1 py-3 bg-[#879782] text-white rounded-sm text-xs tracking-widest font-bold uppercase shadow-md">Save</button>
+          {isEditing && editFormData && (
+            <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/60 sm:p-5 backdrop-blur-sm animate-fade-in" onClick={() => setIsEditing(false)}>
+              <div className="bg-[#FDFCFB] w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] rounded-t-2xl sm:rounded-xl shadow-2xl font-sans flex flex-col animate-slide-up" onClick={e => e.stopPropagation()}>
+                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white/50 rounded-t-2xl sm:rounded-xl shrink-0">
+                   <h3 className="font-serif font-bold text-lg tracking-widest text-[#222]">
+                     {editFormData.isNew ? '新增行程' : '編輯行程'}
+                   </h3>
+                   <button onClick={() => setIsEditing(false)} className="text-gray-400 text-2xl hover:text-black transition-colors">×</button>
+                 </div>
+                 
+                 <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 hide-scrollbar">
+                   {/* 基本資訊 */}
+                   <div className="flex gap-4">
+                     <div className="w-1/3">
+                       <label className="block text-[0.6rem] text-[#879782] tracking-[0.2em] uppercase mb-1 font-bold">時間 Time</label>
+                       <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-mono transition-colors bg-transparent text-lg" type="time" value={editFormData.time} onChange={e => setEditFormData({...editFormData, time: e.target.value})} />
+                     </div>
+                     <div className="flex-1">
+                       <label className="block text-[0.6rem] text-[#879782] tracking-[0.2em] uppercase mb-1 font-bold">類型 Category</label>
+                       <select className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-sans transition-colors bg-transparent text-base" value={editFormData.type} onChange={e => setEditFormData({...editFormData, type: e.target.value})}>
+                         <option value="attraction">📷 景點</option>
+                         <option value="food">🍴 美食</option>
+                         <option value="transport">🚙 交通</option>
+                         <option value="hotel">🛌 住宿</option>
+                         <option value="flight">✈️ 航班</option>
+                       </select>
+                     </div>
+                   </div>
+                   
+                   <div>
+                     <label className="block text-[0.6rem] text-[#879782] tracking-[0.2em] uppercase mb-1 font-bold">標題 Title</label>
+                     <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-serif transition-colors bg-transparent text-base" value={editFormData.title} onChange={e => setEditFormData({...editFormData, title: e.target.value})} placeholder="例：午餐：味藏天國" />
+                   </div>
+
+                   <div>
+                     <label className="block text-[0.6rem] text-[#879782] tracking-[0.2em] uppercase mb-1 font-bold">列表簡介 Short Desc</label>
+                     <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-sans transition-colors bg-transparent text-sm" value={editFormData.desc} onChange={e => setEditFormData({...editFormData, desc: e.target.value})} placeholder="顯示在行程列表上的短敘述" />
+                   </div>
+
+                   <div className="border-t border-dashed border-gray-200 my-2"></div>
+
+                   {/* 詳細資訊 */}
+                   <div>
+                     <label className="block text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">地址 Address</label>
+                     <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-sans transition-colors bg-transparent text-sm" value={editFormData.address} onChange={e => setEditFormData({...editFormData, address: e.target.value})} placeholder="導航用地址" />
+                   </div>
+
+                   <div>
+                     <label className="block text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">地圖連結 Map Link</label>
+                     <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-sans transition-colors bg-transparent text-sm" value={editFormData.map} onChange={e => setEditFormData({...editFormData, map: e.target.value})} placeholder="https://maps.app.goo.gl/..." />
+                   </div>
+
+                   <div className="flex gap-4">
+                     <div className="flex-1">
+                       <label className="block text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">電話 Phone</label>
+                       <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-mono transition-colors bg-transparent text-sm" value={editFormData.phone} onChange={e => setEditFormData({...editFormData, phone: e.target.value})} placeholder="0577-..." />
+                     </div>
+                     <div className="flex-1">
+                       <label className="block text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">預約代號 Booking No.</label>
+                       <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-mono transition-colors bg-transparent text-sm" value={editFormData.reservationNo} onChange={e => setEditFormData({...editFormData, reservationNo: e.target.value})} placeholder="無可留空" />
+                     </div>
+                   </div>
+
+                   <div>
+                     <label className="block text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">官方網站 Website</label>
+                     <input className="w-full border-b border-gray-300 p-2 rounded-none outline-none focus:border-[#879782] font-sans transition-colors bg-transparent text-sm" value={editFormData.website} onChange={e => setEditFormData({...editFormData, website: e.target.value})} placeholder="https://..." />
+                   </div>
+
+                   <div>
+                     <label className="block text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">詳細內文 Details</label>
+                     <textarea className="w-full border border-gray-300 p-3 rounded-md outline-none focus:border-[#879782] font-sans transition-colors bg-transparent text-sm resize-none" rows="4" value={editFormData.descriptionsText} onChange={e => setEditFormData({...editFormData, descriptionsText: e.target.value})} placeholder="輸入詳細介紹或筆記，換行會自動分段喔！" />
+                   </div>
+                 </div>
+                 
+                 <div className="p-4 bg-white border-t border-gray-100 flex gap-3 pb-safe rounded-b-2xl sm:rounded-b-xl shrink-0">
+                   <button onClick={() => setIsEditing(false)} className="flex-1 py-3.5 bg-[#F8F7F4] text-gray-500 rounded-sm text-xs tracking-widest font-bold hover:bg-gray-200 transition-colors uppercase">取消</button>
+                   <button onClick={handleSaveEdit} className="flex-1 py-3.5 bg-[#879782] text-white rounded-sm text-xs tracking-widest font-bold hover:bg-[#72826e] transition-colors uppercase shadow-md active:scale-95">儲存</button>
                  </div>
               </div>
             </div>
           )}
 
-          {/* 浮動卡片 */}
+          {/* 浮動卡片 (升級版) */}
           {activeTab === 'itinerary' && (
-            <div className="absolute bottom-16 left-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] p-4 flex items-center z-20 font-sans">
-              <div className="flex-1 px-4 border-r border-gray-100">
-                <div className="flex items-center gap-2 mb-1.5"><span className="text-xl font-bold font-serif text-[#222]">{firstEventTime}</span><span className="text-[0.6rem] border border-[#879782]/30 text-[#879782] px-1.5 rounded-full font-bold">NOW</span></div>
-                <div className="text-sm font-bold text-[#333] truncate tracking-tight">{firstEventTitle}</div>
+            <div 
+              className="absolute bottom-16 left-4 right-4 bg-[#FDFCFB]/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-3 flex items-stretch z-20 font-sans cursor-pointer active:scale-[0.98] transition-transform"
+              onClick={() => {
+                if (firstEvent) {
+                  setSelectedEvent({ ...firstEvent, dayIdx: selectedDayIdx, eventIdx: 0 });
+                }
+              }}
+            >
+              {/* GPS OFF 區塊 */}
+              <div className="flex flex-col items-center justify-center px-3 border-r border-gray-200/80">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A5998A" strokeWidth="1.5" className="mb-1">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="22" y1="2" x2="2" y2="22"></line>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span className="text-[0.55rem] text-[#A5998A] font-bold tracking-widest leading-none mt-1">GPS<br/>OFF</span>
               </div>
-              <div className="w-24 text-right pl-4">
-                <span className="text-sm font-serif font-bold text-[#8B2C2C]">{nextEventTime}</span>
-                <div className="text-[0.6rem] text-gray-400 font-bold tracking-widest uppercase">Next Up</div>
+
+              {/* 行程預覽區塊 */}
+              <div className="flex-1 px-4 flex flex-col justify-center min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-2xl font-bold font-serif text-[#222] leading-none">{firstEventTime}</span>
+                  <span className="text-[0.55rem] border border-gray-300 text-gray-500 px-1.5 py-0.5 rounded tracking-widest">行程預覽</span>
+                </div>
+                <div className="text-[0.9rem] font-bold text-[#222] truncate mb-0.5 font-serif">{firstEventTitle}</div>
+                <div className="text-[0.65rem] text-gray-500 truncate flex items-center gap-1">
+                  <span className="text-gray-400">→</span> {nextEventTitle}
+                </div>
+              </div>
+
+              {/* 下個時間區塊 */}
+              <div className="flex flex-col items-center justify-center px-3 border-l border-gray-200/80 min-w-[70px]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2" className="mb-1">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span className="text-base font-bold font-serif text-[#222] leading-none">{nextEventTime}</span>
+                <div className="text-[0.55rem] text-gray-500 tracking-widest mt-1">下個時間</div>
               </div>
             </div>
           )}
