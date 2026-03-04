@@ -1,992 +1,566 @@
-import React, { useState, useEffect } from 'react';
-
-// --- 行程資料 (結合使用者提供內容與導遊擴充資訊) ---
-const initialTripData = [
-  {
-    date: "10/01",
-    day: "THU",
-    heroImage: "https://images.unsplash.com/photo-1581404021381-127e7428f729?q=80&w=800&auto=format&fit=crop",
-    heroTitle: "第一天",
-    heroSubtitle: "名古屋",
-    heroDesc: "開啟自駕的序幕",
-    weather: { temp: "24°", outfit: "微涼舒適，建議穿著短袖或薄長袖，搭配輕薄小外套即可。🧥", hourly: [
-      { time: "現在", icon: "☀️", temp: "24°" }, { time: "16:00", icon: "🌤️", temp: "22°" }, { time: "18:00", icon: "⛅", temp: "20°" }, { time: "20:00", icon: "☁️", temp: "18°" }, { time: "22:00", icon: "☁️", temp: "17°" }
-    ]},
-    location: "名古屋",
-    events: [
-      { 
-        time: "14:55", type: "flight", typeText: "FLIGHT", title: "出發 (JX838)", desc: "搭乘星宇航空 JX838 班機，預計從台北桃園 (TPE) 直飛中部國際機場 (NGO)。準備開啟自駕之旅！", tags: [{ text: "重要預約號碼: 待補", isStamp: true }],
-        modalDetails: {
-          address: "桃園市大園區航站南路9號 (第一航廈)", reservationNo: "JX-838-TPE", phone: "02-2791-1199",
-          descriptions: ["【啟程資訊】搭乘星宇航空 JX838 班機，預計從台北桃園 (TPE) 直飛中部國際機場 (NGO)。這是一趟充滿期待的旅程。","【報到提醒】請於起飛前 2.5 小時抵達機場櫃檯完成報到手續，並確認行李是否符合規定。"],
-          website: "https://www.starlux-airlines.com/"
-        }
-      },
-      { 
-        time: "19:59", type: "transport", typeText: "TRANSPORT", title: "領取租車", desc: "抵達機場後前往租車櫃檯，請備妥相關文件。", tags: [{ text: "必備: 駕照日文譯本", isStamp: false }],
-        modalDetails: {
-          address: "愛知県常滑市セントレア1-1 (中部國際機場)", reservationNo: "TR-7729-4281", phone: "056-232-0100", reservationTitle: "Toyota Rent a Car (NGO)", reservationSub: "10/01 取車",
-          descriptions: ["【接駁位置】領完行李出關後，請往左手邊走，尋找「レンタカー (Rent a Car)」的綜合櫃檯。告知預約大名後，工作人員會指引我們到接駁車站牌，搭乘專屬接駁車前往營業所。","【座駕介紹】本次預約的是舒適的 SUV 等級保姆車，空間寬敞，足以容納全家人的行李。"],
-          website: "https://rent.toyota.co.jp/"
-        }
-      },
-      { 
-        time: "23:00", type: "hotel", typeText: "ACCOMMODATION", title: "入住 ixyz杜", desc: "名古屋市區特色民宿，好好休息準備明天的長途駕駛。", map: "https://maps.app.goo.gl/fh9j5LXZ4BdukY2i6", tags: [{ text: "予約済", isStamp: true }],
-        modalDetails: {
-          address: "名古屋市內", phone: "待補",
-          descriptions: ["【民宿特色】隱身於市區的日式摩登民宿，提供溫馨的家庭空間。","【入住須知】採用自助 Check-in，請於抵達前確認信箱內的密碼資訊。"],
-          pdfs: [{ name: "ixyz杜_Booking_Confirm.pdf", url: "#" }]
-        }
-      }
-    ]
-  },
-  {
-    date: "10/02",
-    day: "FRI",
-    heroImage: "https://images.unsplash.com/photo-1620216503921-29e2ebcd1b24?q=80&w=800&auto=format&fit=crop",
-    heroTitle: "第二天",
-    heroSubtitle: "馬籠宿・松本",
-    heroDesc: "走進江戶時代的驛站",
-    weather: { temp: "22°", outfit: "山區午後稍涼，建議薄長袖加防風外套，方便隨時洋蔥式穿脫。🍂", hourly: [
-      { time: "現在", icon: "⛅", temp: "22°" }, { time: "12:00", icon: "☀️", temp: "23°" }, { time: "14:00", icon: "🌤️", temp: "21°" }, { time: "16:00", icon: "☁️", temp: "18°" }, { time: "18:00", icon: "☁️", temp: "15°" }
-    ]},
-    location: "馬籠宿",
-    events: [
-      { 
-        time: "10:00", type: "attraction", typeText: "SIGHTSEEING", title: "漫步馬籠宿", desc: "充滿江戶風情的古老驛站，保留了完整的石板路與木造建築。", map: "https://goo.gl/maps/dummy", tags: [{ text: "必吃美食: 五平餅", isStamp: false }, { text: "必買伴手禮: 木雕小物", isStamp: false }],
-        modalDetails: {
-          address: "岐阜県中津川市馬籠", phone: "0573-69-2336",
-          descriptions: ["【景點特色】中山道第43號宿場，沿著陡峻的坡道而建，兩側是保存完好的格子窗木造房舍。","【必嚐美食】散步時別忘了買一支熱騰騰的「五平餅」，刷上甜鹹核桃味噌醬汁，是飛驒地區的靈魂美食。"]
-        }
-      },
-      { 
-        time: "11:00", type: "attraction", typeText: "SIGHTSEEING", title: "(考慮) 奈良井宿", desc: "若時間允許，可順遊此處，同樣是中山道上的美麗宿場。", tags: [],
-        modalDetails: { address: "長野県塩尻市奈良井", descriptions: ["【備案景點】素有「奈良井千軒」之稱，是中山道上最熱鬧的宿場。若時間充裕可前往。"] }
-      },
-      { 
-        time: "23:00", type: "hotel", typeText: "ACCOMMODATION", title: "入住 Tabino Hotel lit Matsumoto", desc: "含白樺溫泉。注意：若無車位，可停隔壁 Alpico Kotsu 立體停車場。", map: "https://goo.gl/maps/dummy", tags: [{ text: "預約代號: 待補", isStamp: true }],
-        modalDetails: {
-          address: "長野県松本市深志1丁目4-5", reservationNo: "HOTEL-2941", phone: "0263-39-5050", reservationTitle: "Tabino Hotel lit", reservationSub: "10/02 入住",
-          descriptions: ["【停車資訊】飯店無專屬車位，請停放於隔壁 Alpico Kotsu 立體停車場，可於櫃檯折抵。","【設施】一樓設有白樺溫泉，長途跋涉後泡個湯最舒服了。"], website: "https://matsumoto.tabino-hotel.jp/"
-        }
-      }
-    ]
-  },
-  {
-    date: "10/03",
-    day: "SAT",
-    heroImage: "https://images.unsplash.com/photo-1510255556272-358b548d9043?q=80&w=800&auto=format&fit=crop",
-    heroTitle: "第三天",
-    heroSubtitle: "上高地・新穗高",
-    heroDesc: "神明降臨的阿爾卑斯",
-    weather: { temp: "15°", outfit: "高海拔氣溫低！務必穿著保暖防風外套、內搭發熱衣，建議準備毛帽與手套。🧣", hourly: [
-      { time: "現在", icon: "☁️", temp: "10°" }, { time: "10:00", icon: "⛅", temp: "13°" }, { time: "12:00", icon: "🌤️", temp: "15°" }, { time: "14:00", icon: "☁️", temp: "14°" }, { time: "16:00", icon: "🌧️", temp: "11°" }
-    ]},
-    location: "上高地",
-    events: [
-      { 
-        time: "06:30", type: "transport", typeText: "TRANSPORT", title: "抵達澤渡大橋停車場", desc: "轉乘巴士前往上高地。現場透過自動售票機購票後排隊。來回票每人2,800日元，每30分鐘一班。", map: "https://maps.app.goo.gl/SsyoESuzaBY5Vv959", tags: [{ text: "備案: さわんど第1駐車場", isStamp: false }],
-        modalDetails: {
-          address: "長野県松本市安曇さわんど", phone: "無",
-          descriptions: ["【停車須知】自駕車輛禁止進入上高地，必須在此停車轉乘巴士。","【購票方式】現場自動售票機購買來回票（2,800日圓），可刷卡或現金。"], website: "https://visit-nagano.alpico.co.jp/zh-hant/timetable/sawando-kamikochi"
-        }
-      },
-      { 
-        time: "07:30", type: "attraction", typeText: "SIGHTSEEING", title: "神明降臨之地：上高地", desc: "絕美大正池至河童橋健行。山區氣溫低，請務必採用洋蔥式穿法。", tags: [{ text: "必吃美食: TROIS CINQ 蘋果派", isStamp: false }],
-        modalDetails: {
-          address: "長野県松本市安曇上高地", phone: "0263-95-2433",
-          descriptions: ["【健行路線】建議從大正池下車，一路步行經過田代池，最終抵達河童橋，全程約需 1.5 - 2 小時，地勢平緩好走。","【美食推薦】河童橋旁的 TROIS CINQ，他們的信州蘋果派外酥內軟，超級好吃！"]
-        }
-      },
-      { 
-        time: "13:00", type: "transport", typeText: "TRANSPORT", title: "搭乘巴士回程", desc: "搭到 [K-18 澤渡大橋] 下車，離停車場比較近。", tags:[], modalDetails: { address: "上高地巴士總站", descriptions: ["請確認搭乘往「澤渡 (Sawando)」方向的巴士。"] }
-      },
-      { 
-        time: "14:00", type: "attraction", typeText: "SIGHTSEEING", title: "新穗高纜車", desc: "搭乘雙層纜車欣賞北阿爾卑斯山壯麗絕景。", map: "https://maps.app.goo.gl/cmh9HVzbUzJmSbSg7", tags: [{ text: "必吃美食: 頂樓白樺霜淇淋", isStamp: false }],
-        modalDetails: {
-          address: "岐阜県高山市奥飛騨温泉郷神坂710-58", phone: "0578-89-2252",
-          descriptions: ["【設施特色】日本唯一的雙層纜車！可以直達海拔 2156 公尺的西穗高口站觀景台。","【推薦美食】觀景台的頂樓有賣限定的「白樺霜淇淋」，邊吃邊看雲海是一大享受。"], website: "https://shinhotaka-ropeway.jp/"
-        }
-      },
-      { 
-        time: "22:00", type: "hotel", typeText: "ACCOMMODATION", title: "高山 東急ステイ", desc: "飛驒高山 結の湯。今日起連住兩晚。", tags: [{ text: "予約済", isStamp: true }],
-        modalDetails: {
-          address: "岐阜県高山市花里町4丁目1番地", reservationNo: "TK-8832", phone: "0577-33-0109", reservationTitle: "東急ステイ飛騨高山", reservationSub: "10/03-10/05",
-          descriptions: ["【飯店特色】客房內備有洗衣烘乾機，非常適合中途清洗衣物。","【溫泉】頂樓設有景觀溫泉「結の湯」，可眺望高山市景。"]
-        }
-      }
-    ]
-  },
-  {
-    date: "10/04",
-    day: "SUN",
-    heroImage: "https://images.unsplash.com/photo-1596426755498-8ba94dd89dc0?q=80&w=800&auto=format&fit=crop",
-    heroTitle: "第四天",
-    heroSubtitle: "白川鄉・高山",
-    heroDesc: "探訪世界遺產童話村",
-    weather: { temp: "18°", outfit: "秋意濃！白天舒適長袖即可，但早晚溫差較大，別忘了攜帶保暖外套。☕", hourly: [
-      { time: "現在", icon: "☀️", temp: "12°" }, { time: "10:00", icon: "☀️", temp: "16°" }, { time: "12:00", icon: "🌤️", temp: "18°" }, { time: "14:00", icon: "⛅", temp: "17°" }, { time: "16:00", icon: "☁️", temp: "15°" }
-    ]},
-    location: "白川鄉",
-    events: [
-      { 
-        time: "08:30", type: "transport", typeText: "TRANSPORT", title: "合掌村-せせらぎ公園停車場", desc: "汽車收費1000日幣的停車費，入場就收現金，請先備妥。", map: "https://maps.app.goo.gl/t6UzPejnzaSub7xTA", tags: [{ text: "重要: 準備現金", isStamp: true }, { text: "備案: 寺尾臨時停車場", isStamp: false }],
-        modalDetails: {
-          address: "岐阜県大野郡白川村荻町", phone: "無",
-          descriptions: ["【停車費用】單次進出 1000 日圓，現金收費，請先準備好紙鈔或硬幣。","【備案】若客滿，請跟隨指標前往「寺尾臨時停車場」，現場有免費接駁車（車程3分鐘）可達合掌村。"]
-        }
-      },
-      { 
-        time: "09:00", type: "attraction", typeText: "SIGHTSEEING", title: "漫步童話村：白川鄉", desc: "尋找經典的三間小屋與城山展望台俯瞰全景。", tags: [{ text: "必吃美食: 落人咖啡紅豆湯", isStamp: false }, { text: "必買伴手禮: 濁酒布丁", isStamp: false }],
-        modalDetails: {
-          address: "白川鄉合掌造聚落",
-          descriptions: ["【拍照熱點】搭乘接駁車前往「城山展望台」，是拍攝合掌村全貌的最佳視角。","【必嚐美食】走累了可以去「落人咖啡」，坐在地爐旁喝一碗熱騰騰的紅豆湯。"]
-        }
-      },
-      { 
-        time: "13:00", type: "attraction", typeText: "SIGHTSEEING", title: "飛驒高山老街", desc: "漫步於有「飛驒的小京都」之稱的古町。", tags: [{ text: "必吃美食: 飛驒牛握壽司", isStamp: false }, { text: "必買伴手禮: 猿寶寶安產御守", isStamp: false }],
-        modalDetails: {
-          address: "岐阜県高山市上一之町",
-          descriptions: ["【老街風情】保存了江戶時代的町家建築，黑色木格窗充滿古意。","【人氣小吃】老街上的「飛驒牛握壽司」必吃！底下會墊著一片仙貝，吃完壽司連盤子都能一起吃掉。"]
-        }
-      },
-      { 
-        time: "16:00", type: "food", typeText: "FOOD", title: "晚餐：味藏天國", desc: "高山最強燒肉！建議提早現場排隊。", tags: [{ text: "重要: 16:00前現場候位", isStamp: true }, { text: "必點菜單: 飛驒牛A5拼盤", isStamp: false }],
-        modalDetails: {
-          address: "岐阜県高山市花里町4-308", phone: "0577-37-1129",
-          descriptions: ["【農協直營】由JA飛驒（農協）直營的燒肉店，品質保證，價格也相對實惠。","【點餐攻略】推薦直接點「飛驒牛拼盤 (飛騨牛盛り)」，一次品嚐多種部位的頂級A5和牛。油脂豐富，入口即化！","【候位提醒】不能提前訂位，務必在16:00開門前就去抽號碼牌。"], website: "https://www.ajikura.jp/"
-        }
-      }
-    ]
-  },
-  {
-    date: "10/05",
-    day: "MON",
-    heroImage: "https://images.unsplash.com/photo-1591873763784-72fb4d01db54?q=80&w=800&auto=format&fit=crop",
-    heroTitle: "第五天",
-    heroSubtitle: "金澤",
-    heroDesc: "加賀百萬石的榮華",
-    weather: { temp: "21°", outfit: "市區微涼，以薄長袖或七分袖為主，隨身帶件針織衫以備不時之需。🍃", hourly: [
-      { time: "現在", icon: "☁️", temp: "18°" }, { time: "12:00", icon: "⛅", temp: "21°" }, { time: "14:00", icon: "🌤️", temp: "20°" }, { time: "16:00", icon: "☁️", temp: "19°" }, { time: "18:00", icon: "🌧️", temp: "17°" }
-    ]},
-    location: "金澤市",
-    events: [
-      { 
-        time: "09:00", type: "transport", typeText: "TRANSPORT", title: "驅車前往金澤", desc: "車程約 2 小時，沿途欣賞北陸風光。", tags:[], modalDetails: { address: "國道與高速公路", descriptions: ["預計車程約 2 小時，請適時於休息站暫歇。"] }
-      },
-      { 
-        time: "13:00", type: "attraction", typeText: "SIGHTSEEING", title: "日本三名園：兼六園", desc: "欣賞日式庭園極致之美，感受加賀百萬石的榮華。", tags: [{ text: "必吃美食: 金箔冰淇淋", isStamp: false }],
-        modalDetails: {
-          address: "石川県金沢市兼六町1", phone: "076-234-3800",
-          descriptions: ["【名園之首】與水戶偕樂園、岡山後樂園並稱日本三大名園。","【特色體驗】來到金澤一定要試試奢華的「金箔冰淇淋」，兼六園周邊有很多店家販售。"]
-        }
-      },
-      { 
-        time: "22:00", type: "hotel", typeText: "ACCOMMODATION", title: "Onyado Nono Kanazawa", desc: "入住御宿野乃 榻榻米飯店，享受市區天然溫泉。", tags: [{ text: "必吃美食: 免費夜鳴拉麵", isStamp: false }, { text: "予約済", isStamp: true }],
-        modalDetails: {
-          address: "石川県金沢市下堤町1番1", reservationNo: "NN-1029", phone: "076-223-5489", reservationTitle: "天然温泉 加賀の宝泉", reservationSub: "10/05 入住",
-          descriptions: ["【飯店特色】Dormy Inn 旗下的和風品牌，全館鋪設榻榻米，進門需脫鞋。","【免費宵夜】晚上 21:30 - 23:00 提供免費的醬油拉麵（夜鳴きそば），泡完湯吃一碗超級享受！"]
-        }
-      }
-    ]
-  },
-  {
-    date: "10/06",
-    day: "TUE",
-    heroImage: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=800&auto=format&fit=crop",
-    heroTitle: "第六天",
-    heroSubtitle: "名古屋・返家",
-    heroDesc: "滿載美好回憶",
-    weather: { temp: "23°", outfit: "天氣晴朗舒適，穿著透氣輕便的短袖或薄長袖，準備輕鬆返家！✈️", hourly: [
-      { time: "現在", icon: "🌤️", temp: "20°" }, { time: "10:00", icon: "☀️", temp: "23°" }, { time: "12:00", icon: "☀️", temp: "24°" }, { time: "14:00", icon: "⛅", temp: "22°" }, { time: "16:00", icon: "☁️", temp: "21°" }
-    ]},
-    location: "常滑市",
-    events: [
-      { 
-        time: "10:30", type: "transport", typeText: "TRANSPORT", title: "機場還車", desc: "抵達機場周邊租車中心。記得加滿油再還車喔！", tags: [{ text: "重要: 保留加油收據", isStamp: true }],
-        modalDetails: {
-          address: "Toyota Rent a Car 中部國際機場店", phone: "056-232-0100",
-          descriptions: ["【還車須知】請務必在距離租車點最近的加油站「加滿油 (満タン)」，並保留收據給工作人員檢查。"]
-        }
-      },
-      { 
-        time: "19:55", type: "flight", typeText: "FLIGHT", title: "滿載而歸！(JX839)", desc: "搭乘星宇航空 JX839，預計 23:00 抵達桃園機場。", tags: [{ text: "必買伴手禮: 蝦餅", isStamp: false }],
-        modalDetails: {
-          address: "中部國際機場 第1航廈", phone: "無",
-          descriptions: ["【必買伴手禮】機場內必買名物「えびせんべいの里 (蝦餅)」，便宜又大包，送禮自用兩相宜！"]
-        }
-      }
-    ]
-  }
-];
-
-// --- 莫蘭迪色系分類樣式對應表 ---
-const getTypeStyle = (type) => {
-  switch(type) {
-    case 'food': return 'text-[#B08A8B] border-[#B08A8B]/40 bg-[#B08A8B]/5'; // 莫蘭迪粉
-    case 'attraction': return 'text-[#879782] border-[#879782]/40 bg-[#879782]/5'; // 莫蘭迪綠
-    case 'transport': return 'text-[#7A8B99] border-[#7A8B99]/40 bg-[#7A8B99]/5'; // 莫蘭迪灰藍
-    case 'hotel': return 'text-[#B29D82] border-[#B29D82]/40 bg-[#B29D82]/5'; // 莫蘭迪奶咖
-    case 'flight': return 'text-[#8A819C] border-[#8A819C]/40 bg-[#8A819C]/5'; // 莫蘭迪紫
-    default: return 'text-gray-400 border-gray-200 bg-gray-50';
-  }
-};
-
-export default function App() {
-  const [trips, setTrips] = useState(initialTripData);
-  const [activeTab, setActiveTab] = useState('itinerary'); 
-  const [selectedDayIdx, setSelectedDayIdx] = useState(0);
-  const [selectedEvent, setSelectedEvent] = useState(null); 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editFormData, setEditFormData] = useState(null);
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🏔️ 10月中部旅行</title>
   
-  // 記帳本 State
-  const [expenses, setExpenses] = useState([
-    { id: 1, title: "星宇機票", amount: 28000, currency: "TWD" },
-    { id: 2, title: "上高地來回車票", amount: 5600, currency: "JPY" }
-  ]);
-  const [newExpTitle, setNewExpTitle] = useState("");
-  const [newExpAmt, setNewExpAmt] = useState("");
-
-  const handleAddExpense = () => {
-    if (!newExpTitle || !newExpAmt) return;
-    setExpenses([...expenses, { id: Date.now(), title: newExpTitle, amount: Number(newExpAmt), currency: "JPY" }]);
-    setNewExpTitle("");
-    setNewExpAmt("");
-  };
-
-  const currentDayData = trips[selectedDayIdx];
-
-  const nextEventTime = currentDayData.events.length > 1 ? currentDayData.events[1].time : "18:00";
-  const firstEventTime = currentDayData.events.length > 0 ? currentDayData.events[0].time : "--:--";
-  const firstEventTitle = currentDayData.events.length > 0 ? currentDayData.events[0].title : "無行程";
-
-  const handleDeleteEvent = () => {
-    if (window.confirm("確定要刪除這個行程嗎？刪掉就找不回來囉！😱")) {
-      const newTrips = [...trips];
-      newTrips[selectedEvent.dayIdx].events.splice(selectedEvent.eventIdx, 1);
-      setTrips(newTrips);
-      setSelectedEvent(null);
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 載入 Babel (讓瀏覽器能直接看懂 JSX) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- 設定 React 與 Firebase 的模組載入路徑 -->
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"
+      }
     }
-  };
+  </script>
+</head>
+<body class="bg-[#FDFCFB] m-0 p-0 overflow-hidden">
+  
+  <!-- 這是 App 渲染的掛載點 -->
+  <div id="root"></div>
 
-  const handlePdfUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.type !== 'application/pdf') {
-      alert("哎呀！這裡的百寶袋只能收納 PDF 格式的檔案喔 🥺 拜託換一個～");
-      return;
-    }
+  <!-- 這是你的應用程式核心邏輯 -->
+  <script type="text/babel" data-type="module">
+    import React, { useState, useEffect } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { initializeApp } from 'firebase/app';
+    import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+    import { getFirestore, doc, setDoc, onSnapshot } from 'firebase/firestore';
 
-    const fileUrl = URL.createObjectURL(file);
-    const newPdf = { name: file.name, url: fileUrl };
-
-    const newTrips = [...trips];
-    const eventRef = newTrips[selectedEvent.dayIdx].events[selectedEvent.eventIdx];
-    if (!eventRef.modalDetails) eventRef.modalDetails = {};
-    if (!eventRef.modalDetails.pdfs) eventRef.modalDetails.pdfs = [];
-    
-    if (eventRef.modalDetails.pdfs.length >= 2) {
-       alert("行李箱滿啦！每個住宿最多只能放 2 份憑證喔 🧳");
-       return;
-    }
-
-    eventRef.modalDetails.pdfs.push(newPdf);
-    setTrips(newTrips);
-    setSelectedEvent({ ...eventRef, dayIdx: selectedEvent.dayIdx, eventIdx: selectedEvent.eventIdx });
-  };
-
-  const handleDeletePdf = (pdfIdx) => {
-    if(!window.confirm("確定要銷毀這份訂房憑證嗎？🗑️ 撕掉就沒囉！")) return;
-
-    const newTrips = [...trips];
-    const eventRef = newTrips[selectedEvent.dayIdx].events[selectedEvent.eventIdx];
-    eventRef.modalDetails.pdfs.splice(pdfIdx, 1);
-
-    setTrips(newTrips);
-    setSelectedEvent({ ...eventRef, dayIdx: selectedEvent.dayIdx, eventIdx: selectedEvent.eventIdx });
-  };
-
-  const handleSaveEdit = () => {
-    const newTrips = [...trips];
-    const typeMap = {
-      'food': 'FOOD', 'flight': 'FLIGHT', 'transport': 'TRANSPORT', 'hotel': 'ACCOMMODATION', 'attraction': 'SIGHTSEEING'
+    // --- 1. Firebase 配置 (已填入你的專屬金鑰) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_cL9cQGDXntbOlNwSxH02KHerBxHafqE",
+      authDomain: "familytrip202610nagoya.firebaseapp.com",
+      projectId: "familytrip202610nagoya",
+      storageBucket: "familytrip202610nagoya.firebasestorage.app",
+      messagingSenderId: "787958423233",
+      appId: "1:787958423233:web:d8f0ce3e4c5dc46ad23e40"
     };
 
-    if (editFormData.isNew) {
-      newTrips[editFormData.dayIdx].events.push({
-        ...editFormData,
-        typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
-        tags: [],
-        modalDetails: { descriptions: [editFormData.desc] }
-      });
-    } else {
-      newTrips[editFormData.dayIdx].events[editFormData.eventIdx] = {
-        ...newTrips[editFormData.dayIdx].events[editFormData.eventIdx],
-        time: editFormData.time,
-        title: editFormData.title,
-        desc: editFormData.desc,
-        type: editFormData.type,
-        typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
-      };
-    }
-    
-    newTrips[editFormData.dayIdx].events.sort((a, b) => a.time.localeCompare(b.time));
-    setTrips(newTrips);
-    setIsEditing(false);
-    
-    if (!editFormData.isNew) {
-      const updatedIdx = newTrips[editFormData.dayIdx].events.findIndex(e => e.time === editFormData.time && e.title === editFormData.title);
-      setSelectedEvent({ ...newTrips[editFormData.dayIdx].events[updatedIdx], dayIdx: editFormData.dayIdx, eventIdx: updatedIdx });
-    }
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  return (
-    <div className="max-w-md mx-auto h-screen bg-[#FDFCFB] text-[#333333] flex flex-col font-serif overflow-hidden shadow-2xl relative">
+    // 使用你的專案 ID 作為路徑辨識碼
+    const appId = "familytrip202610nagoya";
+
+    // --- 初始行程資料 (滿血完整版：確保所有行程文字都在！) ---
+    const initialTripData = [
+      {
+        date: "10/01", day: "THU",
+        heroImage: "https://images.unsplash.com/photo-1581404021381-127e7428f729?q=80&w=800&auto=format&fit=crop",
+        heroTitle: "第一天", heroSubtitle: "名古屋", heroDesc: "開啟自駕的序幕",
+        weather: { temp: "24°", outfit: "微涼舒適，建議穿著短袖或薄長袖，搭配輕薄小外套即可。🧥", hourly: [
+          { time: "現在", icon: "☀️", temp: "24°" }, { time: "16:00", icon: "🌤️", temp: "22°" }, { time: "18:00", icon: "⛅", temp: "20°" }, { time: "20:00", icon: "☁️", temp: "18°" }, { time: "22:00", icon: "☁️", temp: "17°" }
+        ]},
+        location: "名古屋",
+        events: [
+          { 
+            time: "14:55", type: "flight", typeText: "FLIGHT", title: "出發 (JX838)", desc: "搭乘星宇航空 JX838 班機，預計從台北桃園 (TPE) 直飛中部國際機場 (NGO)。", tags: [{ text: "重要預約號碼: 待補", isStamp: true }],
+            modalDetails: { address: "桃園第一航廈", reservationNo: "JX-838-TPE", phone: "02-2791-1199", descriptions: ["【啟程資訊】搭乘星宇航空 JX838 班機。","【報到提醒】請於起飛前 2.5 小時抵達機場。"], website: "https://www.starlux-airlines.com/" }
+          },
+          { 
+            time: "19:59", type: "transport", typeText: "TRANSPORT", title: "領取租車", desc: "抵達機場後前往租車櫃檯，請備妥駕照與日文譯本。", tags: [{ text: "必備: 駕照日文譯本", isStamp: false }],
+            modalDetails: { address: "愛知県常滑市セントレア1-1", reservationNo: "TR-7729-4281", phone: "056-232-0100", descriptions: ["【接駁位置】領完行李後往左手邊走，尋找 Rent a Car 綜合櫃檯。"] }
+          },
+          { 
+            time: "23:00", type: "hotel", typeText: "ACCOMMODATION", title: "入住 ixyz杜", desc: "名古屋市區特色民宿，好好休息。", map: "https://maps.app.goo.gl/fh9j5LXZ4BdukY2i6", tags: [{ text: "予約済", isStamp: true }],
+            modalDetails: { address: "名古屋市內", descriptions: ["【民宿特色】隱身於市區的日式摩登民宿。","【入住須知】採用自助 Check-in。"], pdfs: [{ name: "ixyz杜_訂房確認單.pdf", url: "#" }] }
+          }
+        ]
+      },
+      { 
+        date: "10/02", day: "FRI", heroImage: "https://images.unsplash.com/photo-1620216503921-29e2ebcd1b24?q=80&w=800&auto=format&fit=crop", heroTitle: "第二天", heroSubtitle: "馬籠宿・松本", heroDesc: "走進江戶時代", 
+        weather: { temp: "22°", outfit: "山區溫差大，建議洋蔥式穿法，備妥防風外套。🍂", hourly: [{ time: "現在", icon: "⛅", temp: "22°" }, { time: "14:00", icon: "🌤️", temp: "21°" }, { time: "18:00", icon: "☁️", temp: "15°" }] }, 
+        location: "馬籠宿", 
+        events: [
+          { 
+            time: "10:00", type: "attraction", typeText: "SIGHTSEEING", title: "漫步馬籠宿", desc: "充滿江戶風情的古老驛站，保留了完整的石板路與木造建築。", map: "https://goo.gl/maps/dummy", tags: [{ text: "必吃美食: 五平餅", isStamp: false }, { text: "必買伴手禮: 木雕小物", isStamp: false }],
+            modalDetails: { address: "岐阜県中津川市馬籠", phone: "0573-69-2336", descriptions: ["【景點特色】中山道第43號宿場。","【必嚐美食】別忘了買一支熱騰騰的「五平餅」，刷上甜鹹核桃味噌醬汁。"] }
+          },
+          { 
+            time: "23:00", type: "hotel", typeText: "ACCOMMODATION", title: "入住 Tabino Hotel lit", desc: "含白樺溫泉。若無車位可停隔壁 Alpico Kotsu。", tags: [{ text: "預約代號: 待補", isStamp: true }],
+            modalDetails: { address: "長野県松本市深志1-4-5", phone: "0263-39-5050", descriptions: ["【設施】一樓設有白樺溫泉，泡個湯最舒服了。"], website: "https://matsumoto.tabino-hotel.jp/" }
+          }
+        ] 
+      },
+      { 
+        date: "10/03", day: "SAT", heroImage: "https://images.unsplash.com/photo-1510255556272-358b548d9043?q=80&w=800&auto=format&fit=crop", heroTitle: "第三天", heroSubtitle: "上高地・新穗高", heroDesc: "神明降臨的阿爾卑斯", 
+        weather: { temp: "15°", outfit: "高海拔氣溫低！務必穿著保暖防風外套、內搭發熱衣。🧣", hourly: [{ time: "現在", icon: "☁️", temp: "10°" }, { time: "12:00", icon: "🌤️", temp: "15°" }, { time: "16:00", icon: "🌧️", temp: "11°" }] }, 
+        location: "上高地", 
+        events: [
+          { 
+            time: "06:30", type: "transport", typeText: "TRANSPORT", title: "抵達澤渡大橋停車場", desc: "轉乘巴士前往上高地。來回票2,800日元。", map: "https://maps.app.goo.gl/SsyoESuzaBY5Vv959",
+            modalDetails: { descriptions: ["【停車須知】自駕車輛禁止進入上高地，必須在此停車轉乘。"] }
+          },
+          { 
+            time: "07:30", type: "attraction", typeText: "SIGHTSEEING", title: "上高地健行", desc: "絕美大正池至河童橋。山區氣溫低，請採用洋蔥式穿法。", tags: [{ text: "必吃美食: TROIS CINQ 蘋果派", isStamp: false }],
+            modalDetails: { descriptions: ["【推薦美食】河童橋旁的 TROIS CINQ，信州蘋果派外酥內軟。"] }
+          },
+          { 
+            time: "14:00", type: "attraction", typeText: "SIGHTSEEING", title: "新穗高纜車", desc: "雙層纜車欣賞北阿爾卑斯山壯麗絕景。", map: "https://maps.app.goo.gl/cmh9HVzbUzJmSbSg7", tags: [{ text: "必吃美食: 頂樓白樺霜淇淋", isStamp: false }],
+            modalDetails: { descriptions: ["【設施特色】日本唯一的雙層纜車！直達海拔 2156 公尺。"] }
+          },
+          { 
+            time: "22:00", type: "hotel", typeText: "ACCOMMODATION", title: "高山 東急ステイ", desc: "飛驒高山 結の湯。今日起連住兩晚。", tags: [{ text: "予約済", isStamp: true }],
+            modalDetails: { address: "岐阜県高山市花里町4-1", phone: "0577-33-0109", descriptions: ["【飯店特色】客房內備有洗衣烘乾機。"] }
+          }
+        ] 
+      },
+      { 
+        date: "10/04", day: "SUN", heroImage: "https://images.unsplash.com/photo-1596426755498-8ba94dd89dc0?q=80&w=800&auto=format&fit=crop", heroTitle: "第四天", heroSubtitle: "白川鄉・高山", heroDesc: "探訪童話村", 
+        weather: { temp: "18°", outfit: "早晚溫差大，白天長袖舒適，早晚帶件保暖外套。☕", hourly: [{ time: "現在", icon: "☀️", temp: "12°" }, { time: "12:00", icon: "🌤️", temp: "18°" }, { time: "16:00", icon: "☁️", temp: "15°" }] }, 
+        location: "白川鄉", 
+        events: [
+          { 
+            time: "09:00", type: "attraction", typeText: "SIGHTSEEING", title: "漫步白川鄉", desc: "尋找經典的三間小屋與展望台。", tags: [{ text: "必吃: 落人咖啡紅豆湯", isStamp: false }],
+            modalDetails: { descriptions: ["【拍照熱點】搭乘接駁車前往「城山展望台」俯瞰全貌。"] }
+          },
+          { 
+            time: "16:00", type: "food", typeText: "FOOD", title: "晚餐：味藏天國", desc: "高山最強燒肉！建議提早現場抽號碼牌。", tags: [{ text: "重要: 16:00前現場候位", isStamp: true }],
+            modalDetails: { address: "岐阜県高山市花里町4-308", descriptions: ["【點餐攻略】推薦點「飛驒牛拼盤」，A5等級油脂豐富。"] }
+          }
+        ] 
+      },
+      { 
+        date: "10/05", day: "MON", heroImage: "https://images.unsplash.com/photo-1591873763784-72fb4d01db54?q=80&w=800&auto=format&fit=crop", heroTitle: "第五天", heroSubtitle: "金澤", heroDesc: "加賀百萬石榮華", 
+        weather: { temp: "21°", outfit: "市區微涼，薄長袖搭配小針織衫。🍃", hourly: [{ time: "現在", icon: "☁️", temp: "18°" }, { time: "12:00", icon: "⛅", temp: "21°" }] }, 
+        location: "金澤市", 
+        events: [
+          { 
+            time: "13:00", type: "attraction", typeText: "SIGHTSEEING", title: "兼六園", desc: "欣賞日式庭園極致之美。", tags: [{ text: "必吃: 金箔冰淇淋", isStamp: false }],
+            modalDetails: { descriptions: ["【名園之首】與水戶偕樂園、岡山後樂園並稱日本三大名園。"] }
+          },
+          { 
+            time: "22:00", type: "hotel", typeText: "ACCOMMODATION", title: "御宿野乃 金澤", desc: "榻榻米飯店，享受市區溫泉。", tags: [{ text: "預約完畢", isStamp: true }],
+            modalDetails: { descriptions: ["【免費宵夜】晚上 21:30 提供免費醬油拉麵。"] }
+          }
+        ] 
+      },
+      { 
+        date: "10/06", day: "TUE", heroImage: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=800&auto=format&fit=crop", heroTitle: "第六天", heroSubtitle: "返家之旅", heroDesc: "滿載回憶", 
+        weather: { temp: "23°", outfit: "天氣晴朗舒適，透氣長袖或短袖。✈️", hourly: [{ time: "現在", icon: "🌤️", temp: "20°" }, { time: "12:00", icon: "☀️", temp: "24°" }] }, 
+        location: "名古屋", 
+        events: [
+          { 
+            time: "10:30", type: "transport", typeText: "TRANSPORT", title: "機場還車", desc: "記得加滿油再還車喔！", tags: [{ text: "重要: 留存收據", isStamp: true }],
+            modalDetails: { descriptions: ["【還車須知】請務必在機場附近加油站「加滿油 (満タン)」。"] }
+          },
+          { 
+            time: "19:55", type: "flight", typeText: "FLIGHT", title: "NGO → 桃園 (JX839)", desc: "星宇航空返家，預計 23:00 抵達。", tags: [{ text: "必買: 機場蝦餅", isStamp: false }],
+            modalDetails: { descriptions: ["【必買伴手禮】機場內「えびせんべいの里」蝦餅便宜大包。"] }
+          }
+        ] 
+      }
+    ];
+
+    // --- 莫蘭迪色系分類樣式 ---
+    const getTypeStyle = (type) => {
+      switch(type) {
+        case 'food': return 'text-[#B08A8B] border-[#B08A8B]/40 bg-[#B08A8B]/5';
+        case 'attraction': return 'text-[#879782] border-[#879782]/40 bg-[#879782]/5';
+        case 'transport': return 'text-[#7A8B99] border-[#7A8B99]/40 bg-[#7A8B99]/5';
+        case 'hotel': return 'text-[#B29D82] border-[#B29D82]/40 bg-[#B29D82]/5';
+        case 'flight': return 'text-[#8A819C] border-[#8A819C]/40 bg-[#8A819C]/5';
+        default: return 'text-gray-400 border-gray-200 bg-gray-50';
+      }
+    };
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [authError, setAuthError] = useState(null);
+      const [trips, setTrips] = useState([]);
+      const [activeTab, setActiveTab] = useState('itinerary'); 
+      const [selectedDayIdx, setSelectedDayIdx] = useState(0);
+      const [selectedEvent, setSelectedEvent] = useState(null); 
+      const [isEditing, setIsEditing] = useState(false);
+      const [editFormData, setEditFormData] = useState(null);
       
-      {/* 匯入 Google Fonts (Noto Serif TC & Noto Sans TC) */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
-        
-        .font-serif { font-family: 'Noto Serif TC', serif; }
-        .font-sans { font-family: 'Noto Sans TC', sans-serif; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* 自定義紅色印章風格 */
-        .stamp-tag {
-          border: 1px solid #8B2C2C;
-          color: #8B2C2C;
-          transform: rotate(-8deg);
-          padding: 2px 6px;
-          font-size: 0.65rem;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          display: inline-block;
-          border-radius: 2px;
-          background: rgba(255,255,255,0.8);
+      const [expenses, setExpenses] = useState([
+        { id: 1, title: "星宇機票 (兩人)", amount: 56000, currency: "TWD" },
+        { id: 2, title: "租車預約 (預估)", amount: 45000, currency: "JPY" }
+      ]);
+      const [newExpTitle, setNewExpTitle] = useState("");
+      const [newExpAmt, setNewExpAmt] = useState("");
+
+      // --- Firebase 認證 ---
+      useEffect(() => {
+        const initAuth = async () => {
+          try {
+            await signInAnonymously(auth);
+          } catch (err) { 
+            console.error("Auth failed", err);
+            setAuthError(err.code || err.message);
+          }
+        };
+        initAuth();
+        const unsubscribe = onAuthStateChanged(auth, setUser);
+        return () => unsubscribe();
+      }, []);
+
+      // --- 雲端資料同步 ---
+      useEffect(() => {
+        if (!user) return;
+        const tripDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'itinerary', 'master_v2');
+        const unsubscribe = onSnapshot(tripDocRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setTrips(snapshot.data().content);
+          } else {
+            setDoc(tripDocRef, { content: initialTripData });
+          }
+        }, (error) => console.error("Sync error:", error));
+        return () => unsubscribe();
+      }, [user]);
+
+      const saveToCloud = async (newTrips) => {
+        if (!user) return;
+        const tripDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'itinerary', 'master_v2');
+        await setDoc(tripDocRef, { content: newTrips });
+      };
+
+      const handleSaveEdit = async () => {
+        const newTrips = [...trips];
+        const typeMap = { 'food': 'FOOD', 'flight': 'FLIGHT', 'transport': 'TRANSPORT', 'hotel': 'ACCOMMODATION', 'attraction': 'SIGHTSEEING' };
+        if (editFormData.isNew) {
+          newTrips[editFormData.dayIdx].events.push({
+            ...editFormData,
+            typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
+            tags: [],
+            modalDetails: { descriptions: [editFormData.desc] }
+          });
+        } else {
+          newTrips[editFormData.dayIdx].events[editFormData.eventIdx] = {
+            ...newTrips[editFormData.dayIdx].events[editFormData.eventIdx],
+            time: editFormData.time,
+            title: editFormData.title,
+            desc: editFormData.desc,
+            type: editFormData.type,
+            typeText: typeMap[editFormData.type] || 'SIGHTSEEING',
+          };
         }
-      `}} />
+        newTrips[editFormData.dayIdx].events.sort((a, b) => a.time.localeCompare(b.time));
+        await saveToCloud(newTrips);
+        setIsEditing(false);
+      };
 
-      {/* --- Header 頂部 --- */}
-      <header className="px-5 pt-8 pb-2 flex flex-col bg-[#FDFCFB] z-10 shrink-0">
-        <div className="flex justify-between items-center w-full">
-          <button className="w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-sm z-20 hover:bg-black/80 transition-colors">
-            ✕
-          </button>
-          <div className="absolute left-0 right-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[0.65rem] tracking-[0.2em] text-[#879782] font-sans uppercase mb-1 flex items-center gap-1">
-              <span className="text-xs">🧳</span> Family Trip
-            </span>
-            <div className="flex items-center gap-2 mt-0.5">
-              <h1 className="text-[1.3rem] font-bold tracking-widest text-[#222]">中部旅行</h1>
-              {/* 更新為區間日期，並調整字體大小與邊距以適應 */}
-              <span className="border border-[#E0Dcd0] bg-[#F7F5F0] rounded-full px-2.5 py-0.5 text-[0.55rem] text-[#888] font-sans tracking-widest shadow-sm">
-                2026/10/01-10/06
-              </span>
+      const handleDeleteEvent = async () => {
+        if (window.confirm("確定要刪除這個行程嗎？刪掉就找不回來囉！😱")) {
+          const newTrips = [...trips];
+          newTrips[selectedEvent.dayIdx].events.splice(selectedEvent.eventIdx, 1);
+          await saveToCloud(newTrips);
+          setSelectedEvent(null);
+        }
+      };
+
+      const handlePdfUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file || file.type !== 'application/pdf') return alert("僅支援 PDF 喔！");
+        const newPdf = { name: file.name, url: URL.createObjectURL(file) };
+        const newTrips = [...trips];
+        const event = newTrips[selectedEvent.dayIdx].events[selectedEvent.eventIdx];
+        if (!event.modalDetails) event.modalDetails = {};
+        if (!event.modalDetails.pdfs) event.modalDetails.pdfs = [];
+        if (event.modalDetails.pdfs.length >= 2) return alert("上限 2 份喔！");
+        event.modalDetails.pdfs.push(newPdf);
+        await saveToCloud(newTrips);
+        setSelectedEvent({ ...event, dayIdx: selectedEvent.dayIdx, eventIdx: selectedEvent.eventIdx });
+      };
+
+      const handleAddExpense = () => {
+        if (!newExpTitle || !newExpAmt) return;
+        setExpenses([...expenses, { id: Date.now(), title: newExpTitle, amount: Number(newExpAmt), currency: "JPY" }]);
+        setNewExpTitle("");
+        setNewExpAmt("");
+      };
+
+      // --- 錯誤處理介面 ---
+      if (authError === 'auth/configuration-not-found') {
+        return (
+          <div className="h-screen flex flex-col items-center justify-center p-8 bg-[#FDFCFB] text-center font-sans">
+            <span className="text-5xl mb-6">🛠️</span>
+            <h2 className="text-xl font-bold text-[#8B2C2C] mb-4">Firebase 設定未完成</h2>
+            <div className="text-sm text-gray-600 mb-6 leading-relaxed">
+              哎呀！你還沒在 Firebase 控制台開啟「匿名登入」功能。<br/>
+              請前往：<br/>
+              <div className="font-bold my-2 px-2 py-1 bg-gray-100 rounded inline-block">
+                Authentication {' > '} Sign-in method {' > '} Add new provider {' > '} Anonymous
+              </div><br/>
+              將其設為 <strong>Enable</strong> 後儲存，重新整理網頁即可。
             </div>
+            <button onClick={() => window.location.reload()} className="bg-[#8B2C2C] text-white px-6 py-2 rounded-full font-bold shadow-md">重新整理</button>
           </div>
-          <div className="w-8"></div> {/* Spacer */}
-        </div>
-      </header>
+        );
+      }
 
-      {/* --- 橫向日期選擇器 (已改為平均分配) --- */}
-      {/* 使用 flex justify-between w-full 確保在手機版寬度下均分不留白 */}
-      <div className="flex justify-between w-full px-6 py-4 hide-scrollbar border-b border-gray-100 bg-[#FDFCFB] shrink-0">
-        {trips.map((day, idx) => {
-          const isSelected = selectedDayIdx === idx;
-          const [month, dateNum] = day.date.split('/');
-          return (
-            <button
-              key={idx}
-              onClick={() => setSelectedDayIdx(idx)}
-              className="flex-shrink-0 flex flex-col items-center justify-center w-10 relative cursor-pointer group"
-            >
-              <span className={`text-[0.65rem] tracking-wider mb-1 font-sans transition-colors ${isSelected ? 'text-black font-semibold' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                {day.day}
-              </span>
-              <span className={`text-xl transition-all ${isSelected ? 'font-bold text-black scale-110' : 'text-gray-400 font-medium group-hover:text-gray-600'}`}>
-                {dateNum}
-              </span>
-              {/* 選擇時的小紅點 */}
-              {isSelected && (
-                <div className="absolute -bottom-3 w-1 h-1 bg-[#8B2C2C] rounded-full"></div>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      if (trips.length === 0 && !authError) return <div className="h-screen flex items-center justify-center font-serif text-gray-400">Loading Journey...</div>;
 
-      {/* --- Main Content Area --- */}
-      <main className="flex-1 overflow-y-auto pb-32 scroll-smooth bg-[#FDFCFB]">
-        
-        {/* TAB 1: 行程表 */}
-        {activeTab === 'itinerary' && (
-          <div className="animate-fade-in flex flex-col relative">
-            
-            {/* 背景的溫柔莫蘭迪光暈 */}
-            <div className="absolute top-10 right-0 w-32 h-32 bg-[#E9E4DB] rounded-full blur-[40px] opacity-40 pointer-events-none"></div>
-            
-            {/* Hero Image Section */}
-            <div className="px-5 py-4 flex gap-4 items-stretch h-56 relative z-10">
-              {/* 左側直式文字 */}
-              <div className="w-6 flex-shrink-0 flex flex-col items-center justify-center pt-2">
-                <span className="text-[1.35rem] font-serif tracking-widest text-[#222]" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>
-                  {currentDayData.heroTitle}
-                </span>
-              </div>
-              
-              {/* 右側圖片區塊 */}
-              <div className="relative flex-1 rounded-sm overflow-hidden shadow-sm">
-                <img src={currentDayData.heroImage} alt="Hero" className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
-                
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="border border-white/60 px-1.5 py-0.5 text-[0.55rem] font-sans tracking-widest bg-black/20 backdrop-blur-sm">DAY {selectedDayIdx + 1}</span>
-                    <span className="text-[0.6rem] font-sans tracking-widest flex items-center gap-1 opacity-90">
-                      📍 {currentDayData.heroSubtitle}
-                    </span>
-                  </div>
-                  <h2 className="text-[1.35rem] font-serif font-bold tracking-widest leading-snug drop-shadow-md">
-                    {currentDayData.heroDesc || currentDayData.location}
-                  </h2>
-                </div>
+      const currentDayData = trips[selectedDayIdx];
+      const firstEventTime = currentDayData?.events?.length > 0 ? currentDayData.events[0].time : "--:--";
+      const firstEventTitle = currentDayData?.events?.length > 0 ? currentDayData.events[0].title : "無行程";
+      const nextEventTime = currentDayData?.events?.length > 1 ? currentDayData.events[1].time : "18:00";
+
+      return (
+        <div className="max-w-md mx-auto h-screen bg-[#FDFCFB] text-[#333333] flex flex-col font-serif overflow-hidden shadow-2xl relative">
+          <style dangerouslySetInnerHTML={{__html: `
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+            .font-serif { font-family: 'Noto Serif TC', serif; }
+            .font-sans { font-family: 'Noto Sans TC', sans-serif; }
+            .hide-scrollbar::-webkit-scrollbar { display: none; }
+            .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+            .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+            .stamp-tag { border: 1px solid #8B2C2C; color: #8B2C2C; transform: rotate(-8deg); padding: 2px 6px; font-size: 0.65rem; font-weight: 700; border-radius: 2px; background: rgba(255,255,255,0.8); }
+            .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+          `}} />
+
+          {/* --- Header --- */}
+          <header className="px-5 pt-8 pb-2 flex flex-col bg-[#FDFCFB] z-10 shrink-0">
+            <div className="flex justify-between items-center w-full relative">
+              <button className="w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center text-sm z-20">✕</button>
+              <div className="absolute left-0 right-0 flex flex-col items-center justify-center pointer-events-none">
+                <h1 className="text-[1.3rem] font-bold tracking-widest text-[#222]">🏔️ 10月中部旅行</h1>
+                <span className="border border-[#E0Dcd0] bg-[#F7F5F0] rounded-full px-2.5 py-0.5 text-[0.55rem] text-[#888] font-sans tracking-widest shadow-sm mt-0.5">2026/10/01-10/06</span>
               </div>
             </div>
+          </header>
 
-            {/* Weather & Outfit Section */}
-            <div className="px-5 py-4 border-b border-gray-100 relative z-10">
-              <h3 className="text-xl font-bold mb-1 tracking-widest text-[#222]">{currentDayData.location}</h3>
-              <p className="text-[0.65rem] text-gray-400 font-sans tracking-widest mb-4">未來 24 小時預報 <span className="float-right bg-[#F5F2EB] px-2 py-0.5 rounded text-[#A5998A] shadow-sm">Open-Meteo</span></p>
-              
-              <div className="flex justify-between items-center px-2">
-                {currentDayData.weather.hourly.map((h, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <span className="text-[0.65rem] text-gray-500 font-sans mb-2">{h.time}</span>
-                    <span className="text-xl mb-2">{h.icon}</span>
-                    <span className="text-sm text-[#444] font-medium">{h.temp}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* 新增：穿搭建議小區塊 (莫蘭迪燕麥色) */}
-              <div className="mt-5 bg-[#F8F7F4] border border-[#EBE7DF] rounded-md p-3 flex items-start gap-3 relative overflow-hidden shadow-sm">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#D4C8B8]"></div>
-                <span className="text-[1.4rem] mt-0.5">🧥</span>
-                <div className="flex flex-col">
-                  <span className="text-[0.6rem] tracking-[0.2em] text-[#A5998A] font-bold mb-1 uppercase font-sans">Outfit Guide</span>
-                  <span className="text-xs text-[#555] font-serif leading-relaxed text-justify pr-1">{currentDayData.weather.outfit}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Timeline Section */}
-            <div className="px-5 py-8 relative z-10">
-              {currentDayData.events.map((event, i) => (
-                <div 
-                  key={i} 
-                  className="flex relative mb-10 group cursor-pointer"
-                  onClick={() => setSelectedEvent({...event, dayIdx: selectedDayIdx, eventIdx: i})}
-                >
-                  {/* Left: Time */}
-                  <div className="w-16 flex-shrink-0 text-right pr-4 pt-1 transition-transform group-hover:scale-105">
-                    <span className="text-lg font-bold tracking-wider">{event.time}</span>
-                    <span className="text-[0.6rem] text-gray-400 block -mt-1 font-sans">°</span>
-                  </div>
-
-                  {/* Middle: Vertical Line & Dot */}
-                  <div className="relative w-4 flex justify-center flex-shrink-0">
-                    <div className="absolute top-3 bottom-[-40px] w-[1px] bg-[#E8E6E1] group-last:bg-transparent"></div>
-                    <div className="w-[5px] h-[5px] rounded-full bg-[#8B2C2C] mt-[10px] z-10 border border-white group-hover:scale-150 transition-transform shadow-sm"></div>
-                  </div>
-
-                  {/* Right: Content */}
-                  <div className="flex-1 pl-4 pb-2 relative group-hover:bg-[#FAF9F6] rounded-r-lg transition-colors p-2 -ml-2">
-                    <h4 className="text-[1.35rem] font-bold text-[#222] leading-tight mb-2 tracking-wide">
-                      {event.title}
-                    </h4>
-                    
-                    <div className="flex items-center gap-1 mb-2">
-                      <span className="text-xs text-gray-400">
-                        {event.type === 'flight' && '✈️'}
-                        {event.type === 'transport' && '🚙'}
-                        {event.type === 'hotel' && '🛌'}
-                        {event.type === 'attraction' && '📷'}
-                        {event.type === 'food' && '🍴'}
-                      </span>
-                      {/* 套用莫蘭迪色系標籤 */}
-                      <span className={`text-[0.6rem] tracking-[0.2em] font-sans px-1.5 py-[1px] rounded-[3px] border ${getTypeStyle(event.type)}`}>
-                        {event.typeText}
-                      </span>
-                    </div>
-                    
-                    <p className="text-[0.85rem] text-[#666] leading-relaxed font-sans mb-3 text-justify line-clamp-2">
-                      {event.desc}
-                    </p>
-                    
-                    {/* Tags / Stamps */}
-                    {event.tags && event.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-1 relative">
-                        {event.tags.map((tag, idx) => (
-                          tag.isStamp ? (
-                            <div key={idx} className="absolute right-2 top-[-60px] stamp-tag shadow-sm z-10">
-                              {tag.text}
-                            </div>
-                          ) : null
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* 新增行程按鈕 */}
-            <div className="px-8 pb-6 text-center">
-              <button 
-                onClick={() => {
-                  setEditFormData({ dayIdx: selectedDayIdx, time: "12:00", title: "", desc: "", type: "attraction", isNew: true });
-                  setIsEditing(true);
-                }}
-                className="w-full py-3 border border-dashed border-[#D4C8B8] text-[#A5998A] rounded-sm text-sm font-sans tracking-widest hover:border-[#8B2C2C] hover:text-[#8B2C2C] hover:bg-[#FAF9F6] transition-all flex items-center justify-center gap-2"
-              >
-                <span className="text-lg">+</span> 新增行程
+          {/* --- 日期欄位 --- */}
+          <div className="flex justify-between w-full px-6 py-4 hide-scrollbar border-b border-gray-100 bg-[#FDFCFB] shrink-0">
+            {trips.map((day, idx) => (
+              <button key={idx} onClick={() => setSelectedDayIdx(idx)} className="flex flex-col items-center justify-center w-10 relative cursor-pointer group">
+                <span className={`text-[0.65rem] tracking-wider mb-1 font-sans ${selectedDayIdx === idx ? 'text-black font-semibold' : 'text-gray-400'}`}>{day.day}</span>
+                <span className={`text-xl transition-all ${selectedDayIdx === idx ? 'font-bold text-black scale-110' : 'text-gray-400 font-medium'}`}>{day.date.split('/')[1]}</span>
+                {selectedDayIdx === idx && <div className="absolute -bottom-3 w-1 h-1 bg-[#8B2C2C] rounded-full"></div>}
               </button>
-            </div>
-
-            {/* 行程結束的裝飾線 */}
-            <div className="flex justify-center mt-2 mb-20 opacity-30">
-              <div className="w-1 h-1 bg-gray-400 rounded-full mx-1"></div>
-              <div className="w-1 h-1 bg-gray-400 rounded-full mx-1"></div>
-              <div className="w-1 h-1 bg-gray-400 rounded-full mx-1"></div>
-            </div>
-
+            ))}
           </div>
-        )}
 
-        {/* TAB 2: 實用工具 */}
-        {activeTab === 'tools' && (
-          <div className="px-6 py-6 space-y-8 animate-fade-in font-sans relative">
-            {/* 莫蘭迪點綴插圖 (右上角) */}
-            <div className="absolute top-2 right-4 text-4xl opacity-10 pointer-events-none">✈️</div>
-
-            <h2 className="text-2xl font-serif font-bold tracking-widest text-center mb-6">實用工具</h2>
-            
-            <section className="border-t border-gray-200 pt-6 relative">
-              <h3 className="text-sm font-bold text-[#8A819C] tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5"><span className="text-[0.65rem]">✦</span> Flight Info</h3>
-              <div className="space-y-4 text-sm text-[#333]">
-                <div className="flex justify-between items-end border-b border-dashed border-gray-200 pb-2">
-                  <span className="text-gray-500 font-serif">去程 10/01</span>
-                  <span className="font-bold text-base font-serif">JX838 <span className="text-xs font-normal text-gray-400 ml-1">14:55-18:45</span></span>
-                </div>
-                <div className="flex justify-between items-end">
-                  <span className="text-gray-500 font-serif">回程 10/06</span>
-                  <span className="font-bold text-base font-serif">JX839 <span className="text-xs font-normal text-gray-400 ml-1">19:55-23:00</span></span>
-                </div>
-              </div>
-            </section>
-
-            <section className="border-t border-gray-200 pt-6">
-              <h3 className="text-sm font-bold text-[#B29D82] tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5"><span className="text-[0.65rem]">✦</span> Accommodation</h3>
-              <ul className="space-y-5 text-sm">
-                <li className="flex flex-col gap-1">
-                  <div className="text-xs text-gray-400 tracking-wider">10/01 名古屋</div>
-                  <div className="font-bold font-serif text-base">ixyz杜</div>
-                </li>
-                <li className="flex flex-col gap-1">
-                  <div className="text-xs text-gray-400 tracking-wider">10/02 松本</div>
-                  <div className="font-bold font-serif text-base">Tabino Hotel lit Matsumoto</div>
-                </li>
-                <li className="flex flex-col gap-1">
-                  <div className="text-xs text-gray-400 tracking-wider">10/03-04 高山 (連泊)</div>
-                  <div className="font-bold font-serif text-base">東急ステイ 飛騨高山</div>
-                </li>
-                <li className="flex flex-col gap-1">
-                  <div className="text-xs text-gray-400 tracking-wider">10/05 金澤</div>
-                  <div className="font-bold font-serif text-base">Onyado Nono Kanazawa</div>
-                </li>
-              </ul>
-            </section>
-
-            <section className="border-t border-gray-200 pt-6">
-              <h3 className="text-sm font-bold text-[#8B2C2C] tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5"><span className="text-[0.65rem]">✦</span> Emergency</h3>
-              <ul className="space-y-3 text-sm text-[#8B2C2C]">
-                <li className="flex justify-between"><span>報警</span><span className="font-mono font-bold">110</span></li>
-                <li className="flex justify-between"><span>救護車/消防</span><span className="font-mono font-bold">119</span></li>
-                <li className="flex justify-between border-t border-red-100 pt-3 mt-1">
-                  <span>駐大阪辦事處急難救助</span>
-                  <a href="tel:+819087944568" className="font-mono font-bold underline">+81-90-8794-4568</a>
-                </li>
-              </ul>
-            </section>
-          </div>
-        )}
-
-        {/* TAB 3: 記帳本 */}
-        {activeTab === 'budget' && (
-          <div className="px-6 py-6 animate-fade-in font-sans relative">
-            <div className="absolute top-2 right-4 text-4xl opacity-10 pointer-events-none">🌿</div>
-            
-            <h2 className="text-2xl font-serif font-bold tracking-widest text-center mb-6">預算控制</h2>
-            
-            <div className="bg-[#F8F7F4] border border-[#EBE7DF] p-6 rounded-sm mb-8 text-center relative overflow-hidden shadow-sm">
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#879782]"></div>
-              <h3 className="text-xs tracking-[0.2em] text-[#879782] uppercase mb-2 font-bold">Total Expenses</h3>
-              <div className="text-3xl font-bold font-serif text-[#222]">
-                ¥ {expenses.filter(e => e.currency === 'JPY').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
-              </div>
-              <div className="text-xs text-gray-400 mt-2">
-                + NT$ {expenses.filter(e => e.currency === 'TWD').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
-              </div>
-            </div>
-
-            <div className="flex gap-2 mb-8">
-              <input 
-                type="text" 
-                placeholder="項目" 
-                className="flex-1 bg-transparent border-b border-gray-300 px-2 py-2 text-sm outline-none focus:border-[#879782] font-serif transition-colors"
-                value={newExpTitle}
-                onChange={(e) => setNewExpTitle(e.target.value)}
-              />
-              <input 
-                type="number" 
-                placeholder="¥ 金額" 
-                className="w-24 bg-transparent border-b border-gray-300 px-2 py-2 text-sm outline-none focus:border-[#879782] font-serif transition-colors"
-                value={newExpAmt}
-                onChange={(e) => setNewExpAmt(e.target.value)}
-              />
-              <button 
-                onClick={handleAddExpense}
-                className="bg-[#879782] hover:bg-[#72826e] text-white px-4 py-2 text-xs tracking-wider rounded-sm transition-colors"
-              >
-                ADD
-              </button>
-            </div>
-
-            <h3 className="text-sm font-bold text-gray-400 tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5"><span className="text-[0.65rem]">✦</span> Records</h3>
-            <div className="space-y-4">
-              {expenses.map(exp => (
-                <div key={exp.id} className="flex justify-between items-end border-b border-dashed border-gray-100 pb-2">
-                  <span className="text-[#444] font-serif text-sm">{exp.title}</span>
-                  <span className="font-mono text-sm text-[#222]">
-                    {exp.currency === 'JPY' ? '¥' : 'NT$'} {exp.amount.toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* --- 浮動預覽卡片 (僅在行程表顯示) --- */}
-      {activeTab === 'itinerary' && (
-        <div className="absolute bottom-16 left-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-3 flex items-center z-20 font-sans">
-          <div className="flex flex-col items-center justify-center w-12 border-r border-gray-100 pr-2">
-            <span className="text-lg opacity-40">✇</span>
-            <span className="text-[0.5rem] text-gray-400 font-bold mt-1">GPS OFF</span>
-          </div>
-          
-          <div className="flex-1 px-4">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl font-bold font-serif">{firstEventTime}</span>
-              <span className="text-[0.6rem] border border-gray-200 text-[#879782] px-1 rounded">行程預覽</span>
-            </div>
-            <div className="text-sm font-bold text-[#222] truncate">{firstEventTitle}</div>
-            <div className="text-[0.65rem] text-gray-400 mt-0.5">→ 下一站：查看詳情</div>
-          </div>
-          
-          <div className="flex flex-col items-end w-16 pl-2 border-l border-gray-100">
-            <span className="text-sm font-serif">{nextEventTime}</span>
-            <span className="text-[0.5rem] text-gray-400 mt-1">下個時間</span>
-          </div>
-        </div>
-      )}
-
-      {/* --- 極簡底部導航欄 --- */}
-      <nav className="absolute bottom-0 w-full bg-[#FDFCFB]/90 backdrop-blur border-t border-gray-100 px-8 py-3 flex justify-between items-center pb-safe z-30">
-        <button onClick={() => setActiveTab('itinerary')} className={`text-xs tracking-widest font-sans transition-colors ${activeTab === 'itinerary' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}>
-          ITINERARY
-        </button>
-        <button onClick={() => setActiveTab('tools')} className={`text-xs tracking-widest font-sans transition-colors ${activeTab === 'tools' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}>
-          TOOLS
-        </button>
-        <button onClick={() => setActiveTab('budget')} className={`text-xs tracking-widest font-sans transition-colors ${activeTab === 'budget' ? 'text-black font-bold' : 'text-gray-400 hover:text-gray-600'}`}>
-          BUDGET
-        </button>
-      </nav>
-
-      {/* --- 行程詳細資訊 Modal --- */}
-      {selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#FDFCFB] w-full max-w-md h-[90vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-xl overflow-hidden flex flex-col relative animate-slide-up shadow-2xl">
-            
-            {/* Modal Header */}
-            <div className="px-6 py-5 flex justify-between items-center border-b border-gray-100/80 bg-white/50">
-              <div className="flex items-center gap-3">
-                <span className={`border px-2 py-0.5 text-[0.65rem] font-sans tracking-widest uppercase ${getTypeStyle(selectedEvent.type)}`}>
-                  {selectedEvent.typeText}
-                </span>
-                <span className="text-sm font-serif text-gray-500 tracking-wider">
-                  <span className="text-xs mr-1 opacity-60">🕒</span>{selectedEvent.time}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => {
-                    setEditFormData({ ...selectedEvent });
-                    setIsEditing(true);
-                  }} 
-                  className="text-gray-400 hover:text-[#557B83] transition-colors"
-                  title="編輯行程"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-                <button 
-                  onClick={handleDeleteEvent} 
-                  className="text-gray-400 hover:text-[#8B2C2C] transition-colors"
-                  title="刪除行程"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </button>
-                <button onClick={() => setSelectedEvent(null)} className="text-gray-400 text-2xl hover:text-black transition-colors w-6 h-6 flex items-center justify-center font-sans font-light">
-                  ×
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-8 font-sans pb-32 hide-scrollbar">
-              <h2 className="text-[1.65rem] font-serif font-bold text-[#222] mb-3 leading-snug">
-                {selectedEvent.title}
-              </h2>
-              
-              {selectedEvent.modalDetails?.address && (
-                <p className="text-[0.8rem] text-gray-500 mb-8 flex items-start gap-1.5 tracking-wide">
-                  <span className="opacity-60 text-xs">📍</span> {selectedEvent.modalDetails.address}
-                </p>
-              )}
-
-              {/* Reservation Card */}
-              {selectedEvent.modalDetails?.reservationNo && (
-                <div className="bg-[#F8F7F4] border border-[#EBE7DF] p-5 rounded-sm mb-8 shadow-sm relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#D4C8B8]"></div>
-                  <div className="text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-2 font-bold">RESERVATION</div>
-                  <div className="font-serif font-bold text-lg text-[#222]">{selectedEvent.modalDetails.reservationTitle || selectedEvent.title}</div>
-                  <div className="text-xs text-gray-500 mb-4 font-serif">{selectedEvent.modalDetails.reservationSub}</div>
-                  
-                  <div className="border-t border-dashed border-[#EBE7DF] pt-4 relative">
-                    <div className="text-[0.6rem] text-[#A5998A] tracking-[0.2em] uppercase mb-1 font-bold">CONFIRMATION NO.</div>
-                    <div className="font-mono text-xl font-bold text-[#333] tracking-widest">{selectedEvent.modalDetails.reservationNo}</div>
-                    <button className="absolute right-0 top-6 text-gray-400 hover:text-black">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    </button>
-                    <div className="absolute right-2 -bottom-4 stamp-tag transform rotate-[-5deg]">訂單代號<br/>給櫃檯看的</div>
-                  </div>
-                </div>
-              )}
-
-              {/* PDF 憑證區塊 */}
-              {selectedEvent.type === 'hotel' && (
-                <div className="mb-8 bg-white border border-gray-100 p-4 rounded-sm shadow-sm relative">
-                  <div className="flex items-center justify-between mb-3 border-b border-gray-50 pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-400 text-sm">📎</span>
-                      <span className="text-[0.65rem] text-[#222] tracking-[0.2em] uppercase font-bold">住宿憑證 (VOUCHERS)</span>
+          <main className="flex-1 overflow-y-auto pb-32 bg-[#FDFCFB] relative">
+            {activeTab === 'itinerary' && (
+              <div className="animate-fade-in flex flex-col px-5">
+                <div className="py-4 flex gap-4 items-stretch h-56 relative z-10">
+                  <div className="w-6 flex items-center justify-center"><span className="text-[1.35rem] font-serif tracking-widest text-[#222]" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>{currentDayData?.heroTitle}</span></div>
+                  <div className="relative flex-1 rounded-sm overflow-hidden shadow-sm">
+                    <img src={currentDayData?.heroImage} className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <div className="flex items-center gap-2 mb-1.5"><span className="border border-white/60 px-1.5 py-0.5 text-[0.55rem] font-sans tracking-widest bg-black/20">DAY {selectedDayIdx + 1}</span><span className="text-[0.6rem] font-sans tracking-widest opacity-90">📍 {currentDayData?.heroSubtitle}</span></div>
+                      <h2 className="text-[1.35rem] font-serif font-bold tracking-widest leading-snug">{currentDayData?.heroDesc}</h2>
                     </div>
-                    <span className="text-[0.6rem] font-mono text-gray-400 bg-gray-50 px-2 py-0.5 rounded-sm border border-gray-100">
-                      {selectedEvent.modalDetails?.pdfs?.length || 0} / 2
-                    </span>
                   </div>
+                </div>
 
-                  <div className="space-y-2.5">
-                    {(selectedEvent.modalDetails?.pdfs || []).map((pdf, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-[#F8F7F4] border border-[#EBE7DF] p-2.5 rounded-sm">
-                        <div className="flex items-center gap-2.5 overflow-hidden">
-                          <span className="text-[#8B2C2C] text-base drop-shadow-sm">📄</span>
-                          <span className="text-xs font-sans text-[#444] truncate font-medium max-w-[140px] sm:max-w-[200px]">{pdf.name}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <a href={pdf.url} target="_blank" rel="noreferrer" className="text-[0.65rem] text-[#879782] bg-[#879782]/10 hover:bg-[#879782]/20 px-2.5 py-1.5 rounded-sm transition-colors font-bold tracking-wider">
-                            預覽
-                          </a>
-                          <button onClick={() => handleDeletePdf(idx)} className="text-[0.65rem] text-[#8B2C2C] bg-[#8B2C2C]/10 hover:bg-[#8B2C2C]/20 px-2.5 py-1.5 rounded-sm transition-colors font-bold tracking-wider">
-                            刪除
-                          </button>
-                        </div>
+                {/* Weather & Outfit */}
+                <div className="py-4 border-b border-gray-100 px-2">
+                  <div className="flex justify-between items-center mb-4">
+                    {currentDayData?.weather.hourly.map((h, i) => (
+                      <div key={i} className="flex flex-col items-center">
+                        <span className="text-[0.65rem] text-gray-500 font-sans mb-1">{h.time}</span>
+                        <span className="text-xl mb-1">{h.icon}</span>
+                        <span className="text-sm font-medium">{h.temp}</span>
                       </div>
                     ))}
-
-                    {(!selectedEvent.modalDetails?.pdfs || selectedEvent.modalDetails.pdfs.length < 2) && (
-                      <label className="flex items-center justify-center w-full bg-white border border-dashed border-[#D4C8B8] p-3 rounded-sm cursor-pointer hover:border-[#8B2C2C] hover:bg-[#FAF9F6] transition-all group mt-2">
-                        <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
-                        <span className="text-xs text-[#A5998A] group-hover:text-[#8B2C2C] font-sans tracking-widest font-bold flex items-center gap-1.5">
-                          <span className="text-sm">+</span> 上傳 PDF 憑證
-                        </span>
-                      </label>
-                    )}
                   </div>
-                </div>
-              )}
-
-              {/* About Section */}
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-gray-400 text-xs">ⓘ</span>
-                <span className="text-[0.7rem] text-gray-500 tracking-[0.2em] uppercase font-bold">關於此處 (ABOUT)</span>
-              </div>
-
-              {selectedEvent.modalDetails?.phone && (
-                <div className="bg-white border border-gray-100 p-4 rounded-sm shadow-sm mb-6 flex items-center gap-4">
-                  <div className="text-[#A5998A]">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                  </div>
-                  <div>
-                    <div className="text-[0.55rem] text-[#A5998A] tracking-[0.2em] uppercase mb-0.5 font-bold">PHONE / GPS</div>
-                    <div className="font-mono font-bold text-lg text-[#222] tracking-wider">{selectedEvent.modalDetails.phone}</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Description List */}
-              <div className="space-y-6 relative ml-1">
-                <div className="absolute left-0 top-2 bottom-2 w-[1px] bg-gray-200"></div>
-                {selectedEvent.modalDetails?.descriptions?.map((desc, idx) => {
-                  const titleMatch = desc.match(/^【(.*?)】/);
-                  const title = titleMatch ? titleMatch[1] : '';
-                  const content = titleMatch ? desc.replace(/^【.*?】/, '') : desc;
-                  
-                  return (
-                    <div key={idx} className="relative pl-5 text-[0.85rem] text-gray-600 leading-[1.8] text-justify">
-                      <div className="absolute left-[-2.5px] top-2.5 w-[6px] h-[6px] rounded-sm bg-[#D4C8B8]"></div>
-                      {title && <span className="font-bold text-[#222] mr-1">【{title}】</span>}
-                      {content}
+                  <div className="bg-[#F8F7F4] border border-[#EBE7DF] rounded-md p-3 flex items-start gap-3 shadow-sm relative overflow-hidden">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#D4C8B8]"></div>
+                    <span className="text-[1.4rem]">🧥</span>
+                    <div className="flex flex-col">
+                      <span className="text-[0.6rem] text-[#A5998A] font-bold uppercase mb-1">Outfit Guide</span>
+                      <span className="text-xs text-[#555] leading-relaxed">{currentDayData?.weather.outfit}</span>
                     </div>
-                  );
-                })}
-              </div>
-              
-              {/* Extra Tags in Modal */}
-              {selectedEvent.tags && selectedEvent.tags.some(t => !t.isStamp) && (
-                <div className="mt-8 flex flex-wrap gap-2">
-                  {selectedEvent.tags.filter(t => !t.isStamp).map((tag, idx) => (
-                    <span key={idx} className="text-[0.7rem] bg-[#F8F7F4] text-[#879782] border border-[#EBE7DF] px-2.5 py-1.5 rounded-sm font-sans tracking-wide">
-                      {tag.text}
-                    </span>
+                  </div>
+                </div>
+
+                {/* Timeline */}
+                <div className="py-8">
+                  {currentDayData?.events.map((event, i) => (
+                    <div key={i} className="flex relative mb-10 cursor-pointer group" onClick={() => setSelectedEvent({...event, dayIdx: selectedDayIdx, eventIdx: i})}>
+                      <div className="w-16 text-right pr-4 pt-1"><span className="text-lg font-bold tracking-wider">{event.time}</span></div>
+                      <div className="relative w-4 flex justify-center">
+                        <div className="absolute top-3 bottom-[-40px] w-[1px] bg-[#E8E6E1]"></div>
+                        <div className="w-[5px] h-[5px] rounded-full bg-[#8B2C2C] mt-[10px] z-10 border border-white shadow-sm group-hover:scale-125 transition-transform"></div>
+                      </div>
+                      <div className="flex-1 pl-4 pb-2">
+                        <h4 className="text-[1.35rem] font-bold text-[#222] leading-tight mb-2 tracking-wide">{event.title}</h4>
+                        <span className={`text-[0.6rem] tracking-[0.2em] font-sans px-1.5 py-[1px] rounded-[3px] border ${getTypeStyle(event.type)}`}>{event.typeText}</span>
+                        <p className="text-[0.85rem] text-[#666] mt-2 line-clamp-2">{event.desc}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              )}
-            </div>
 
-            {/* Modal Footer Buttons */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-white via-white/95 to-white/0 flex flex-col gap-2.5 pb-safe">
-              <a 
-                href={selectedEvent.map || "#"} 
-                target="_blank" rel="noreferrer" 
-                className="w-full bg-[#879782] text-white py-3.5 rounded text-center text-sm tracking-widest font-bold shadow-md flex items-center justify-center gap-2 hover:bg-[#72826e] transition-colors"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-                Google Maps 導航
-              </a>
-              {selectedEvent.modalDetails?.website && (
-                <a 
-                  href={selectedEvent.modalDetails.website} 
-                  target="_blank" rel="noreferrer" 
-                  className="w-full bg-[#B29D82] text-white py-3.5 rounded text-center text-sm tracking-widest font-bold shadow-md flex items-center justify-center gap-2 hover:bg-[#9c8971] transition-colors"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                  官方網站
-                </a>
-              )}
-            </div>
+                <button onClick={() => { setEditFormData({ dayIdx: selectedDayIdx, time: "12:00", title: "", desc: "", type: "attraction", isNew: true }); setIsEditing(true); }} className="w-full py-3 border border-dashed border-[#D4C8B8] text-[#A5998A] rounded-sm text-sm tracking-widest flex items-center justify-center gap-2 mb-24 hover:bg-gray-50">+ 新增行程</button>
+              </div>
+            )}
 
-          </div>
+            {/* --- Tools Tab --- */}
+            {activeTab === 'tools' && (
+              <div className="px-6 py-6 space-y-8 animate-fade-in font-sans relative">
+                <h2 className="text-2xl font-serif font-bold tracking-widest text-center mb-6">實用工具</h2>
+                <section className="border-t border-gray-200 pt-6">
+                  <h3 className="text-sm font-bold text-[#8A819C] tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5">✦ Flight Info</h3>
+                  <div className="space-y-4 text-sm text-[#333]">
+                    <div className="flex justify-between items-end border-b border-dashed border-gray-200 pb-2">
+                      <span className="text-gray-500 font-serif">去程 10/01</span>
+                      <span className="font-bold text-base font-serif text-[#222]">JX838 (14:55-18:45)</span>
+                    </div>
+                    <div className="flex justify-between items-end">
+                      <span className="text-gray-500 font-serif">回程 10/06</span>
+                      <span className="font-bold text-base font-serif text-[#222]">JX839 (19:55-23:00)</span>
+                    </div>
+                  </div>
+                </section>
+                <section className="border-t border-gray-200 pt-6">
+                  <h3 className="text-sm font-bold text-[#B29D82] tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5">✦ Accommodation</h3>
+                  <ul className="space-y-4 text-sm">
+                    <li><div className="text-xs text-gray-400">10/01 名古屋</div><div className="font-bold font-serif text-[#222]">ixyz杜</div></li>
+                    <li><div className="text-xs text-gray-400">10/02 松本</div><div className="font-bold font-serif text-[#222]">Tabino Hotel lit Matsumoto</div></li>
+                    <li><div className="text-xs text-gray-400">10/03-05 高山</div><div className="font-bold font-serif text-[#222]">高山 東急ステイ 飛騨高山</div></li>
+                    <li><div className="text-xs text-gray-400">10/05 金澤</div><div className="font-bold font-serif text-[#222]">Onyado Nono Kanazawa</div></li>
+                  </ul>
+                </section>
+                <section className="border-t border-gray-200 pt-6">
+                  <h3 className="text-sm font-bold text-[#8B2C2C] tracking-[0.2em] uppercase mb-4 flex items-center gap-1.5">✦ Emergency</h3>
+                  <ul className="space-y-3 text-sm text-[#8B2C2C]">
+                    <li className="flex justify-between"><span>報警 / 救護車</span><span className="font-mono font-bold text-lg">110 / 119</span></li>
+                    <li className="flex justify-between border-t border-red-100 pt-3 mt-1">
+                      <span>駐大阪辦事處急難救助</span>
+                      <a href="tel:+819087944568" className="font-mono font-bold underline">+81-90-8794-4568</a>
+                    </li>
+                  </ul>
+                </section>
+              </div>
+            )}
+
+            {/* --- Budget Tab --- */}
+            {activeTab === 'budget' && (
+              <div className="px-6 py-6 animate-fade-in font-sans relative">
+                <h2 className="text-2xl font-serif font-bold tracking-widest text-center mb-6">預算控制</h2>
+                <div className="bg-[#F8F7F4] border border-[#EBE7DF] p-6 rounded-sm mb-8 text-center relative shadow-sm">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#879782]"></div>
+                  <h3 className="text-xs tracking-[0.2em] text-[#879782] uppercase mb-2 font-bold">Total Expenses</h3>
+                  <div className="text-3xl font-bold font-serif text-[#222]">
+                    ¥ {expenses.filter(e => e.currency === 'JPY').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-2">+ NT$ {expenses.filter(e => e.currency === 'TWD').reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}</div>
+                </div>
+                <div className="flex gap-2 mb-8">
+                  <input type="text" placeholder="項目" className="flex-1 bg-transparent border-b border-gray-300 px-2 py-2 text-sm outline-none focus:border-[#879782]" value={newExpTitle} onChange={(e) => setNewExpTitle(e.target.value)} />
+                  <input type="number" placeholder="金額" className="w-24 bg-transparent border-b border-gray-300 px-2 py-2 text-sm outline-none focus:border-[#879782]" value={newExpAmt} onChange={(e) => setNewExpAmt(e.target.value)} />
+                  <button onClick={handleAddExpense} className="bg-[#879782] text-white px-4 py-2 text-xs tracking-wider rounded-sm">ADD</button>
+                </div>
+                <div className="space-y-4">
+                  {expenses.map(exp => (
+                    <div key={exp.id} className="flex justify-between items-end border-b border-dashed border-gray-100 pb-2">
+                      <span className="text-[#444] font-serif text-sm">{exp.title}</span>
+                      <span className="font-mono text-sm text-[#222]">{exp.currency === 'JPY' ? '¥' : 'NT$'} {exp.amount.toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* --- Bottom Nav --- */}
+          <nav className="absolute bottom-0 w-full bg-[#FDFCFB]/90 backdrop-blur border-t border-gray-100 px-8 py-3 flex justify-between items-center pb-safe z-30">
+            {['itinerary', 'tools', 'budget'].map(t => (
+              <button key={t} onClick={() => setActiveTab(t)} className={`text-xs tracking-widest uppercase transition-all ${activeTab === t ? 'text-black font-bold' : 'text-gray-400'}`}>{t}</button>
+            ))}
+          </nav>
+
+          {/* Event Modal */}
+          {selectedEvent && (
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedEvent(null)}>
+              <div className="bg-[#FDFCFB] w-full max-w-md h-[90vh] rounded-t-2xl overflow-hidden flex flex-col animate-slide-up shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="px-6 py-5 flex justify-between items-center border-b border-gray-100/80 bg-white/50">
+                  <div className="flex items-center gap-3">
+                    <span className={`border px-2 py-0.5 text-[0.65rem] uppercase ${getTypeStyle(selectedEvent.type)}`}>{selectedEvent.typeText}</span>
+                    <span className="text-sm font-serif text-gray-500 tracking-wider">🕒 {selectedEvent.time}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <button onClick={() => { setEditFormData(selectedEvent); setIsEditing(true); }} className="text-gray-400 hover:text-black">✏️</button>
+                    <button onClick={handleDeleteEvent} className="text-gray-400 hover:text-[#8B2C2C]">🗑️</button>
+                    <button onClick={() => setSelectedEvent(null)} className="text-2xl font-light hover:text-black">×</button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto px-6 py-8 pb-32 hide-scrollbar">
+                  <h2 className="text-[1.65rem] font-serif font-bold text-[#222] mb-3 leading-snug">{selectedEvent.title}</h2>
+                  {selectedEvent.type === 'hotel' && (
+                    <div className="mb-8 bg-white border border-gray-100 p-4 rounded-sm shadow-sm relative overflow-hidden">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#D4C8B8]"></div>
+                      <span className="text-[0.65rem] text-[#222] tracking-[0.2em] uppercase font-bold border-b block mb-3 pb-1">住宿憑證 (VOUCHERS)</span>
+                      <div className="space-y-2.5">
+                        {selectedEvent.modalDetails?.pdfs?.map((pdf, idx) => (
+                          <div key={idx} className="flex justify-between items-center bg-[#F8F7F4] p-2.5 border border-[#EBE7DF] rounded-sm">
+                            <span className="text-xs truncate max-w-[150px] text-gray-600">📄 {pdf.name}</span>
+                            <div className="flex gap-2">
+                              <a href={pdf.url} target="_blank" className="text-[0.6rem] bg-[#879782] text-white px-3 py-1.5 rounded-sm">預覽</a>
+                            </div>
+                          </div>
+                        ))}
+                        <label className="block text-center border border-dashed border-[#D4C8B8] p-3 rounded-sm text-[0.65rem] text-[#A5998A] cursor-pointer">
+                          + 上傳 PDF <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-6 text-[0.85rem] text-gray-600 leading-relaxed font-sans text-justify relative pl-4">
+                    <div className="absolute left-0 top-1 bottom-1 w-[1px] bg-gray-200"></div>
+                    {selectedEvent.modalDetails?.descriptions?.map((d, i) => (
+                      <div key={i} className="relative"><div className="absolute left-[-20px] top-2 w-2 h-2 rounded-full bg-[#D4C8B8]"></div>{d}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Modal */}
+          {isEditing && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-5 backdrop-blur-sm animate-fade-in" onClick={() => setIsEditing(false)}>
+              <div className="bg-[#FDFCFB] w-full max-w-sm p-8 rounded-xl shadow-2xl font-sans animate-slide-up" onClick={e => e.stopPropagation()}>
+                 <h3 className="font-serif font-bold text-xl mb-6 tracking-widest text-[#222]">行程細節</h3>
+                 <input className="w-full border-b border-gray-300 p-2 mb-6 rounded-none outline-none focus:border-[#879782] font-serif transition-colors bg-transparent" value={editFormData.title} onChange={e => setEditFormData({...editFormData, title: e.target.value})} placeholder="輸入標題..." />
+                 <input className="w-full border-b border-gray-300 p-2 mb-8 rounded-none outline-none focus:border-[#879782] font-mono transition-colors bg-transparent" type="time" value={editFormData.time} onChange={e => setEditFormData({...editFormData, time: e.target.value})} />
+                 <div className="flex gap-3">
+                   <button onClick={() => setIsEditing(false)} className="flex-1 py-3 bg-gray-100 text-gray-500 rounded-sm text-xs tracking-widest font-bold uppercase">Cancel</button>
+                   <button onClick={handleSaveEdit} className="flex-1 py-3 bg-[#879782] text-white rounded-sm text-xs tracking-widest font-bold uppercase shadow-md">Save</button>
+                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* 浮動卡片 */}
+          {activeTab === 'itinerary' && (
+            <div className="absolute bottom-16 left-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] p-4 flex items-center z-20 font-sans">
+              <div className="flex-1 px-4 border-r border-gray-100">
+                <div className="flex items-center gap-2 mb-1.5"><span className="text-xl font-bold font-serif text-[#222]">{firstEventTime}</span><span className="text-[0.6rem] border border-[#879782]/30 text-[#879782] px-1.5 rounded-full font-bold">NOW</span></div>
+                <div className="text-sm font-bold text-[#333] truncate tracking-tight">{firstEventTitle}</div>
+              </div>
+              <div className="w-24 text-right pl-4">
+                <span className="text-sm font-serif font-bold text-[#8B2C2C]">{nextEventTime}</span>
+                <div className="text-[0.6rem] text-gray-400 font-bold tracking-widest uppercase">Next Up</div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-
-      {/* --- 編輯/新增行程表單 Modal --- */}
-      {isEditing && editFormData && (
-        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#FDFCFB] w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-xl overflow-hidden flex flex-col relative animate-slide-up shadow-2xl font-sans">
-            
-            <div className="px-6 py-5 border-b border-gray-100/80 bg-white/50 flex justify-between items-center">
-              <h3 className="font-serif font-bold text-lg text-[#222] tracking-widest">
-                {editFormData.isNew ? '新增行程' : '編輯行程'}
-              </h3>
-              <button onClick={() => setIsEditing(false)} className="text-gray-400 text-2xl hover:text-black">×</button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 hide-scrollbar">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 tracking-widest mb-1.5 uppercase">時間 Time</label>
-                <input 
-                  type="time" 
-                  value={editFormData.time} 
-                  onChange={e => setEditFormData({...editFormData, time: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded px-3 py-2.5 text-lg font-mono outline-none focus:border-[#879782] transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 tracking-widest mb-1.5 uppercase">類型 Category</label>
-                <select 
-                  value={editFormData.type} 
-                  onChange={e => setEditFormData({...editFormData, type: e.target.value})}
-                  className="w-full bg-white border border-gray-200 rounded px-3 py-2.5 text-sm outline-none focus:border-[#879782] transition-colors"
-                >
-                  <option value="attraction">📷 景點 (Sightseeing)</option>
-                  <option value="food">🍴 美食 (Food)</option>
-                  <option value="transport">🚙 交通 (Transport)</option>
-                  <option value="hotel">🛌 住宿 (Accommodation)</option>
-                  <option value="flight">✈️ 航班 (Flight)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 tracking-widest mb-1.5 uppercase">標題 Title</label>
-                <input 
-                  type="text" 
-                  value={editFormData.title} 
-                  onChange={e => setEditFormData({...editFormData, title: e.target.value})}
-                  placeholder="例：午餐：魚飯時"
-                  className="w-full bg-white border border-gray-200 rounded px-3 py-2.5 text-base font-serif outline-none focus:border-[#879782] transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-500 tracking-widest mb-1.5 uppercase">描述 Description</label>
-                <textarea 
-                  value={editFormData.desc} 
-                  onChange={e => setEditFormData({...editFormData, desc: e.target.value})}
-                  placeholder="輸入行程細節..."
-                  rows="4"
-                  className="w-full bg-white border border-gray-200 rounded px-3 py-2.5 text-sm font-sans outline-none focus:border-[#879782] transition-colors resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="p-5 bg-white border-t border-gray-100 flex gap-3 pb-safe">
-              <button 
-                onClick={() => setIsEditing(false)}
-                className="flex-1 py-3.5 rounded text-sm tracking-widest font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
-              >
-                取消
-              </button>
-              <button 
-                onClick={handleSaveEdit}
-                className="flex-1 py-3.5 rounded text-sm tracking-widest font-bold text-white bg-[#879782] hover:bg-[#72826e] transition-colors"
-              >
-                儲存
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
+      );
+    }
+    
+    // 將 React 應用程式掛載到畫面
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
